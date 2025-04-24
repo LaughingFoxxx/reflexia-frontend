@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import {Layout, Menu, Button, Card, Space, Popover, Spin, message, Modal} from 'antd';
+import { Layout, Menu, Button, Card, Space, Popover, Spin, message, Modal } from 'antd';
 import {
     FileTextOutlined,
     UserOutlined,
@@ -8,13 +8,15 @@ import {
     ArrowLeftOutlined,
     SaveOutlined,
     LoadingOutlined,
-    DeleteOutlined
+    DeleteOutlined,
+    LogoutOutlined
 } from '@ant-design/icons';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import './App.css';
-import SettingsPage from "./SettingsPage.jsx";
-import AccountPage from "./AccountPage.jsx";
+import SettingsPage from './SettingsPage.jsx';
+import AccountPage from './AccountPage.jsx';
+import { useNavigate } from 'react-router-dom';
 
 const { Sider, Content } = Layout;
 
@@ -37,9 +39,10 @@ const App = () => {
     const [isLoadingDocuments, setIsLoadingDocuments] = useState(false);
     const [fetchError, setFetchError] = useState(null);
     const [isDocumentsFetched, setIsDocumentsFetched] = useState(false);
-    const isFetchingRef = useRef(false); // Реф для предотвращения двойного вызова
+    const isFetchingRef = useRef(false);
     const quillRef = useRef(null);
     const [documentToDelete, setDocumentToDelete] = useState(null);
+    const navigate = useNavigate();
 
     // Отслеживание изменения размера экрана
     useEffect(() => {
@@ -58,6 +61,26 @@ const App = () => {
         document.documentElement.style.setProperty('--editor-font-family', initialFontFamily);
     }, []);
 
+    // Функция выхода из аккаунта
+    const handleLogout = async () => {
+        try {
+            const response = await fetch('http://localhost:8082/api/auth/logout', {
+                method: 'POST',
+                credentials: 'include',
+            });
+
+            if (response.ok) {
+                message.success('Вы успешно вышли из аккаунта');
+                navigate('/login');
+            } else {
+                throw new Error('Failed to logout');
+            }
+        } catch (error) {
+            console.error('Logout failed:', error);
+            message.error('Ошибка при выходе из аккаунта');
+        }
+    };
+
     // Функция удаления документа
     const handleDeleteDocument = async (docId) => {
         try {
@@ -67,7 +90,6 @@ const App = () => {
             });
 
             if (response.status === 401) {
-                // Обработка обновления токена
                 const refreshResponse = await fetch('http://localhost:8082/api/auth/refresh', {
                     method: 'POST',
                     credentials: 'include',
@@ -77,7 +99,6 @@ const App = () => {
                     throw new Error('Failed to refresh token');
                 }
 
-                // Повторный запрос после обновления токена
                 const retryResponse = await fetch(`http://localhost:8082/api/text/delete-document?documentId=${docId}`, {
                     method: 'DELETE',
                     credentials: 'include',
@@ -90,7 +111,6 @@ const App = () => {
                 throw new Error(`HTTP error ${response.status}`);
             }
 
-            // Успешное удаление
             setDocuments(prevDocs => prevDocs.filter(doc => doc.id !== docId));
             message.success('Документ удален');
             if (currentDoc?.id === docId) {
@@ -171,7 +191,7 @@ const App = () => {
                 if (!doc || typeof doc !== 'object') return null;
                 const updatedAtDate = new Date(doc.updatedAt);
                 const formattedDate = isNaN(updatedAtDate) ? 'Unknown Date' : updatedAtDate.toISOString().split('T')[0];
-                const cleanText = stripHtml(doc.text || ''); // Убираем HTML-теги
+                const cleanText = stripHtml(doc.text || '');
                 const previewText = cleanText.substring(0, 100) + (cleanText.length > 100 ? '...' : '') || `Content for ${doc.documentName || 'Untitled'}...`;
 
                 return {
@@ -201,7 +221,7 @@ const App = () => {
         if (selectedMenu === 'documents' && !currentDoc && !isDocumentsFetched && !isFetchingRef.current) {
             fetchDocuments();
         }
-    }, [selectedMenu, currentDoc]); // Зависимости остаются, но проверка внутри предотвращает лишние вызовы
+    }, [selectedMenu, currentDoc]);
 
     const menuItems = [
         { key: 'documents', icon: <FileTextOutlined />, label: 'Мои документы' },
@@ -235,9 +255,8 @@ const App = () => {
         if (!selection || !selection.text) return;
 
         setIsProcessing(true);
-        setProcessedText(''); // Очищаем предыдущий результат
+        setProcessedText('');
 
-        // Маппинг опций к промптам
         const prompts = {
             "Повысить ясность": "Перепиши этот текст, чтобы он стал более ясным и понятным, сохранив исходный смысл.",
             "Сделать короче": "Сократи этот текст, сохранив основную идею.",
@@ -282,11 +301,10 @@ const App = () => {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify(payload),
-                credentials: 'include', // Отправляем токены в куках
+                credentials: 'include',
             });
 
             if (response.status === 401) {
-                // Обработка обновления токена
                 const refreshResponse = await fetch('http://localhost:8082/api/auth/refresh', {
                     method: 'POST',
                     credentials: 'include',
@@ -296,7 +314,6 @@ const App = () => {
                     throw new Error('Failed to refresh token');
                 }
 
-                // Повторный запрос после обновления токена
                 const retryResponse = await fetch('http://localhost:8082/api/text/process-text', {
                     method: 'POST',
                     headers: {
@@ -344,12 +361,11 @@ const App = () => {
             {showPreview ? (
                 <div className="preview-container">
                     <div className="preview-text">
-                        {/* Рендерим текст с учетом форматирования */}
                         <div
                             dangerouslySetInnerHTML={{
                                 __html: processedText
-                                    .replace(/\n/g, '<br/>') // Преобразуем переносы строк в <br/>
-                                    .replace(/\r\n/g, '<br/>') // Для Windows-формата
+                                    .replace(/\n/g, '<br/>')
+                                    .replace(/\r\n/g, '<br/>')
                             }}
                         />
                     </div>
@@ -368,7 +384,7 @@ const App = () => {
                 </div>
             ) : (
                 <div className="options-container">
-                    {processingOptions.map((section, index) => (
+                    { processingOptions.map((section, index) => (
                         <div key={index}>
                             <div className="processing-category">{section.category}</div>
                             <div className="processing-options">
@@ -391,11 +407,10 @@ const App = () => {
     );
 
     const handleCreateDocument = async () => {
-        const newDocId = `new_${Date.now()}`; // Генерируем временный ID
+        const newDocId = `new_${Date.now()}`;
         const initialTitle = 'Новый документ';
         const initialContent = '';
 
-        // Создаем новый документ локально
         const newDoc = {
             id: newDocId,
             title: initialTitle,
@@ -405,7 +420,6 @@ const App = () => {
             isNew: true,
         };
 
-        // Отправляем запрос на сервер
         try {
             const payload = {
                 documentId: newDocId,
@@ -423,7 +437,6 @@ const App = () => {
             });
 
             if (response.status === 401) {
-                // Обработка обновления токена
                 const refreshResponse = await fetch('http://localhost:8082/api/auth/refresh', {
                     method: 'POST',
                     credentials: 'include',
@@ -433,7 +446,6 @@ const App = () => {
                     throw new Error('Failed to refresh token');
                 }
 
-                // Повторяем запрос после обновления токена
                 const retryResponse = await fetch('http://localhost:8082/api/text/create-new-document', {
                     method: 'POST',
                     headers: {
@@ -450,7 +462,6 @@ const App = () => {
                 throw new Error(`HTTP error ${response.status}`);
             }
 
-            // Если сервер вернул данные, обновляем локальный документ
             const contentType = response.headers.get('Content-Type');
             let serverDoc = null;
             if (contentType && contentType.includes('application/json') && response.status !== 204) {
@@ -466,16 +477,13 @@ const App = () => {
                 isNew: false,
             };
 
-            // Обновляем состояние
             setCurrentDoc(updatedDoc);
             setEditorContent(initialContent);
             setDocuments(prevDocs => [updatedDoc, ...prevDocs]);
             message.success('Документ создан');
-
         } catch (error) {
             console.error('Failed to create document:', error);
             message.error(`Ошибка при создании документа: ${error.message}`);
-            // Все равно показываем документ локально, даже если запрос не удался
             setCurrentDoc(newDoc);
             setEditorContent(initialContent);
             setDocuments(prevDocs => [newDoc, ...prevDocs]);
@@ -539,7 +547,7 @@ const App = () => {
                     console.log('No JSON response from server, using local data');
                 }
 
-                const cleanText = stripHtml(updatedDocFromServer?.text || editorContent); // Убираем HTML-теги
+                const cleanText = stripHtml(updatedDocFromServer?.text || editorContent);
                 const updatedDoc = {
                     ...currentDoc,
                     title: updatedDocFromServer?.documentName || currentDoc.title,
@@ -623,7 +631,7 @@ const App = () => {
                                 <DeleteOutlined
                                     className="delete-icon"
                                     onClick={(e) => {
-                                        e.stopPropagation(); // Предотвращаем открытие документа при клике на иконку
+                                        e.stopPropagation();
                                         confirmDelete(doc);
                                     }}
                                 />
@@ -660,10 +668,14 @@ const App = () => {
                     selectedKeys={[selectedMenu]}
                     items={menuItems}
                     onClick={(e) => {
-                        setSelectedMenu(e.key);
-                        setCurrentDoc(null);
-                        setSelection(null);
-                        setShowPreview(false);
+                        if (e.key === 'logout') {
+                            handleLogout();
+                        } else {
+                            setSelectedMenu(e.key);
+                            setCurrentDoc(null);
+                            setSelection(null);
+                            setShowPreview(false);
+                        }
                     }}
                     style={{ borderRight: 0, fontSize: '16px' }}
                 />

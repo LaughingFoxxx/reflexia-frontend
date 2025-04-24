@@ -1,8 +1,9 @@
 // AccountPage.jsx
 import React from 'react';
-import { Card, Button, Typography, Space } from 'antd';
+import {Card, Button, Typography, Space, message} from 'antd';
 import { LogoutOutlined } from '@ant-design/icons';
 import './AccountPage.css';
+import { useNavigate } from "react-router-dom";
 
 const { Title, Text } = Typography;
 
@@ -10,10 +11,28 @@ const AccountPage = () => {
     // Пример email пользователя (в реальном приложении это будет из состояния или API)
     const userEmail = 'user@example.com';
 
+    const navigate = useNavigate();
+
     // Функция выхода из аккаунта (заглушка, замените на реальную логику)
-    const handleLogout = () => {
-        console.log('Выход из аккаунта...');
-        // Здесь должна быть логика выхода, например, очистка токенов и перенаправление
+    const handleLogout = async () => {
+        try {
+            const response = await fetch('http://localhost:8082/api/auth/logout', {
+                method: 'POST',
+                credentials: 'include',
+            });
+
+            if (response.ok) {
+                message.success('Вы успешно вышли из аккаунта');
+                navigate('/login');
+            } else {
+                message.error('Ошибка при выходе из аккаунта');
+                navigate('/login'); // Перенаправляем даже при ошибке
+            }
+        } catch (error) {
+            console.error('Logout error:', error);
+            message.error('Ошибка при выходе из аккаунта');
+            navigate('/login');
+        }
     };
 
     return (

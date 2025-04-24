@@ -10,6 +10,53 @@ const { Title, Text } = Typography;
 const LandingPage = () => {
     const navigate = useNavigate();
 
+    const handleTryNow = async () => {
+        try {
+            // Validate access token
+            const validateResponse = await fetch('http://localhost:8082/api/auth/validate-access-token', {
+                method: 'POST',
+                credentials: 'include', // Include cookies for HttpOnly tokens
+            });
+
+            if (validateResponse.ok) {
+                // Token is valid, redirect to /app
+                navigate('/app');
+            } else if (validateResponse.status === 401) {
+                // Token is invalid, try to refresh
+                const refreshResponse = await fetch('http://localhost:8082/api/auth/refresh', {
+                    method: 'POST',
+                    credentials: 'include',
+                });
+
+                if (refreshResponse.ok) {
+                    // Retry validation after refresh
+                    const retryResponse = await fetch('http://localhost:8082/api/auth/validate-access-token', {
+                        method: 'POST',
+                        credentials: 'include',
+                    });
+
+                    if (retryResponse.ok) {
+                        // Token is valid after refresh, redirect to /app
+                        navigate('/app');
+                    } else {
+                        // Retry failed, redirect to /login
+                        navigate('/login');
+                    }
+                } else {
+                    // Refresh failed, redirect to /login
+                    navigate('/login');
+                }
+            } else {
+                // Other errors, redirect to /login
+                navigate('/login');
+            }
+        } catch (error) {
+            console.error('Error validating token:', error);
+            // Any network or unexpected errors, redirect to /login
+            navigate('/login');
+        }
+    };
+
     return (
         <Layout className="landing-layout">
             <Content className="landing-content">
@@ -26,7 +73,7 @@ const LandingPage = () => {
                         <Button
                             type="primary"
                             size="large"
-                            onClick={() => navigate('/app')}
+                            onClick={handleTryNow}
                             className="cta-button"
                         >
                             Попробовать сейчас
