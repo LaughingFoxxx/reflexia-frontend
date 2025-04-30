@@ -64,10 +64,10 @@ const LandingPage = () => {
                 <div className="hero-section">
                     <div className="glow-effect" />
                     <Title level={1} className="hero-title">
-                        Рефлексия
+                        Рефлексия AI
                     </Title>
                     <Text className="hero-subtitle">
-                        Ваш умный помощник для работы с текстом. Создавайте, редактируйте и улучшайте свои документы с помощью искусственного интеллекта.
+                        Ваш умный помощник для работы с текстом. Создавайте, редактируйте и улучшайте любой текст с помощью искусственного интеллекта.
                     </Text>
                     <Space size="large" className="hero-buttons">
                         <Button

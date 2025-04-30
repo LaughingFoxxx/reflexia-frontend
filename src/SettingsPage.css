@@ -12,38 +12,38 @@
     border-radius: 8px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.09) !important;
     background-color: #ffffff; /* Default light background */
-    transition: background-color 0.3s ease, border-color 0.3s ease, transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+    /*transition: background-color 0.3s ease, border-color 0.3s ease, transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;*/
     min-height: 250px;
 }
 
-.settings-page-container .ant-card:hover {
-    transform: translateY(-5px); /* Example: Move the card up by 5px on hover */
-    box-shadow: 0 5px 12px rgba(0,0,0,0.12)!important; /* Optional: Add a slightly stronger shadow on hover */
-}
+/*.settings-page-container .ant-card:hover {*/
+/*    transform: translateY(-5px); !* Example: Move the card up by 5px on hover *!*/
+/*    box-shadow: 0 5px 12px rgba(0,0,0,0.12)!important; !* Optional: Add a slightly stronger shadow on hover *!*/
+/*}*/
 
 .settings-page-container .ant-card-head {
     background-color: #fafafa; /* Slightly different header bg */
     border-bottom: 1px solid #f0f0f0;
     border-radius: 8px 8px 0 0;
-    transition: background-color 0.3s ease, border-color 0.3s ease;
+    /*transition: background-color 0.3s ease, border-color 0.3s ease;*/
 }
 
 .settings-page-container .ant-card-head-title .ant-typography {
     color: #333; /* Default title color */
-    transition: color 0.3s ease;
+    /*transition: color 0.3s ease;*/
 }
 
 /* Style Form Items */
 .settings-page-container .ant-form-item-label > label {
     font-weight: 500;
     color: #555; /* Default label color */
-    transition: color 0.3s ease;
+    /*transition: color 0.3s ease;*/
 }
 
-.settings-page-container .ant-select,
-.settings-page-container .ant-radio-button-wrapper {
-    transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
-}
+/*.settings-page-container .ant-select,*/
+/*.settings-page-container .ant-radio-button-wrapper {*/
+/*    transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;*/
+/*}*/
 
 
 /* --- Dark Theme Styles --- */

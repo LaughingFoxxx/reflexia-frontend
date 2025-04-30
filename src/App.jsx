@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Layout, Menu, Button, Card, Space, Popover, Spin, message, Modal } from 'antd';
+import { Layout, Menu, Button, Card, Space, Popover, Spin, message, Modal, Upload } from 'antd';
 import {
     FileTextOutlined,
     UserOutlined,
@@ -9,7 +9,9 @@ import {
     SaveOutlined,
     LoadingOutlined,
     DeleteOutlined,
-    LogoutOutlined
+    LogoutOutlined,
+    CopyOutlined,
+    UploadOutlined, ExportOutlined
 } from '@ant-design/icons';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
@@ -30,6 +32,7 @@ const App = () => {
     const [selectedMenu, setSelectedMenu] = useState('documents');
     const [currentDoc, setCurrentDoc] = useState(null);
     const [editorContent, setEditorContent] = useState('');
+    const [originalContent, setOriginalContent] = useState(''); // Track original content for change detection
     const [selection, setSelection] = useState(null);
     const [processedText, setProcessedText] = useState('');
     const [isProcessing, setIsProcessing] = useState(false);
@@ -139,6 +142,8 @@ const App = () => {
             onCancel: () => {
                 setDocumentToDelete(null);
             },
+            className: 'custom-delete-modal',
+            centered: true,
         });
     };
 
@@ -222,6 +227,79 @@ const App = () => {
             fetchDocuments();
         }
     }, [selectedMenu, currentDoc]);
+
+    // Функция загрузки файла
+    const handleUploadFile = async (file) => {
+        const formData = new FormData();
+        formData.append('file', file);
+
+        try {
+            const response = await fetch('http://localhost:8082/api/text/upload-document-file', {
+                method: 'POST',
+                body: formData,
+                credentials: 'include',
+            });
+
+            if (response.status === 401) {
+                const refreshResponse = await fetch('http://localhost:8082/api/auth/refresh', {
+                    method: 'POST',
+                    credentials: 'include',
+                });
+
+                if (!refreshResponse.ok) {
+                    throw new Error('Failed to refresh token');
+                }
+
+                const retryResponse = await fetch('http://localhost:8082/api/text/upload-document-file', {
+                    method: 'POST',
+                    body: formData,
+                    credentials: 'include',
+                });
+
+                if (!retryResponse.ok) {
+                    throw new Error(`HTTP error ${retryResponse.status}`);
+                }
+
+                const retryData = await retryResponse.json();
+                handleDocumentResponse(retryData);
+            } else if (!response.ok) {
+                throw new Error(`HTTP error ${response.status}`);
+            } else {
+                const data = await response.json();
+                handleDocumentResponse(data);
+            }
+
+            return false; // Prevent Upload component from auto-uploading again
+        } catch (error) {
+            console.error('Failed to upload file:', error);
+            message.error(`Ошибка при загрузке файла: ${error.message}`);
+            return false;
+        }
+    };
+
+    // Обработка ответа сервера после загрузки документа
+    const handleDocumentResponse = (doc) => {
+        const updatedAtDate = new Date(doc.updatedAt);
+        const formattedDate = isNaN(updatedAtDate) ? 'Unknown Date' : updatedAtDate.toISOString().split('T')[0];
+        const cleanText = stripHtml(doc.text || '');
+        const previewText = cleanText.substring(0, 100) + (cleanText.length > 100 ? '...' : '') || `Content for ${doc.documentName || 'Untitled'}...`;
+
+        const formattedDoc = {
+            id: doc.documentId,
+            title: doc.documentName || 'Uploaded Document',
+            date: formattedDate,
+            preview: previewText,
+            content: doc.text || '',
+            createdAt: doc.createdAt,
+            updatedAt: doc.updatedAt,
+        };
+
+        setDocuments(prevDocs => [formattedDoc, ...prevDocs]);
+        setCurrentDoc(formattedDoc);
+        setEditorContent(formattedDoc.content);
+        setOriginalContent(formattedDoc.content);
+        message.success('Документ успешно загружен и открыт');
+    };
 
     const menuItems = [
         { key: 'documents', icon: <FileTextOutlined />, label: 'Мои документы' },
@@ -356,6 +434,17 @@ const App = () => {
         }
     };
 
+    const handleCopyText = () => {
+        navigator.clipboard.writeText(processedText)
+            .then(() => {
+                message.success('Текст скопирован в буфер обмена');
+            })
+            .catch((error) => {
+                console.error('Failed to copy text:', error);
+                message.error('Ошибка при копировании текста');
+            });
+    };
+
     const processingContent = (
         <div className={`processing-menu ${showPreview ? 'wide-preview' : ''}`}>
             {showPreview ? (
@@ -372,6 +461,9 @@ const App = () => {
                     <div className="preview-buttons">
                         <Button onClick={() => setShowPreview(false)} style={{ marginRight: 8 }}>
                             Назад
+                        </Button>
+                        <Button onClick={handleCopyText} icon={<CopyOutlined />} style={{ marginRight: 8 }}>
+                            Скопировать
                         </Button>
                         <Button type="primary" onClick={handleReplaceText}>
                             Заменить
@@ -479,6 +571,7 @@ const App = () => {
 
             setCurrentDoc(updatedDoc);
             setEditorContent(initialContent);
+            setOriginalContent(initialContent);
             setDocuments(prevDocs => [updatedDoc, ...prevDocs]);
             message.success('Документ создан');
         } catch (error) {
@@ -486,6 +579,7 @@ const App = () => {
             message.error(`Ошибка при создании документа: ${error.message}`);
             setCurrentDoc(newDoc);
             setEditorContent(initialContent);
+            setOriginalContent(initialContent);
             setDocuments(prevDocs => [newDoc, ...prevDocs]);
         }
     };
@@ -493,14 +587,15 @@ const App = () => {
     const handleOpenDocument = (doc) => {
         setCurrentDoc(doc);
         setEditorContent(doc.content);
+        setOriginalContent(doc.content);
         setSelection(null);
     };
 
     const handleSave = async () => {
         if (!currentDoc) return;
 
-        message.info('Сохранение...');
-        setIsLoadingDocuments(true);
+        // message.info('Сохранение...');
+        // setIsLoadingDocuments(true);
 
         const payload = {
             documentId: currentDoc.id,
@@ -559,6 +654,7 @@ const App = () => {
                 };
 
                 setCurrentDoc(updatedDoc);
+                setOriginalContent(editorContent);
                 setDocuments(prevDocs =>
                     prevDocs.map(doc =>
                         doc.id === updatedDoc.id ? updatedDoc : doc
@@ -577,10 +673,40 @@ const App = () => {
         await saveDocument();
     };
 
+    const handleBack = async () => {
+        if (editorContent !== originalContent || currentDoc?.title !== currentDoc?.title) {
+            await handleSave();
+        }
+        setCurrentDoc(null);
+        setEditorContent('');
+        setOriginalContent('');
+    };
+
+    const modules = {
+        toolbar: [
+            [{ 'header': [1, 2, 3, false] }],
+            ['bold', 'italic', 'underline', 'strike'],
+            [{ 'align': '' }, { 'align': 'center' }, { 'align': 'right' }, { 'align': 'justify' }],
+            [{ 'color': [] }, { 'background': [] }],
+            ['link', 'image'],
+            [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+            ['clean']
+        ],
+    };
+
+    const formats = [
+        'header',
+        'bold', 'italic', 'underline', 'strike',
+        'align',
+        'color', 'background',
+        'link', 'image',
+        'list', 'bullet',
+    ];
+
     const renderEditor = () => (
         <div className="editor-container">
             <div className="editor-header">
-                <Button icon={<ArrowLeftOutlined />} onClick={() => setCurrentDoc(null)} type="text" className="back-button">Назад</Button>
+                <Button icon={<ArrowLeftOutlined />} onClick={handleBack} type="text" className="back-button">Назад</Button>
                 <div className="title-wrapper">
                     <input
                         type="text"
@@ -609,6 +735,8 @@ const App = () => {
                         onChange={setEditorContent}
                         onChangeSelection={handleSelectionChange}
                         className="custom-quill"
+                        modules={modules}
+                        formats={formats}
                     />
                 </Popover>
             </div>
@@ -621,13 +749,29 @@ const App = () => {
 
         return (
             <>
-                <Button type="primary" icon={<PlusOutlined />} onClick={handleCreateDocument} className="create-doc-btn">Создать документ</Button>
+                <div style={{ display: 'flex', gap: '12px' }}>
+                    <Button type="primary" icon={<PlusOutlined />} onClick={handleCreateDocument} className="create-doc-btn">
+                        Создать документ
+                    </Button>
+                    <Upload
+                        beforeUpload={handleUploadFile}
+                        showUploadList={false}
+                        accept=".txt,.doc,.docx,.pdf"
+                    >
+                        <Button type="default" className="upload-btn" icon={<UploadOutlined />}>
+                            Загрузить файл
+                        </Button>
+                    </Upload>
+                </div>
                 {documents.length === 0 ? (
-                    <div className="no-documents-message">Нет сохраненных документов. Нажмите "Создать документ", чтобы начать.</div>
+                    <div className="no-documents-message">Нет сохраненных документов. Нажмите "Создать документ" или "Загрузить файл", чтобы начать.</div>
                 ) : (
                     <div className="documents-grid">
                         {documents.map(doc => (
                             <div key={doc.id} className="document-card">
+                                <ExportOutlined
+                                    className="export-icon"
+                                />
                                 <DeleteOutlined
                                     className="delete-icon"
                                     onClick={(e) => {
@@ -638,7 +782,7 @@ const App = () => {
                                 <div className="document-card-content" onClick={() => handleOpenDocument(doc)}>
                                     <div className="document-title">{doc.title}</div>
                                     <div className="document-preview">{doc.preview}</div>
-                                    <div className="document-date">Последнее изменение: {doc.date}</div>
+                                    <div className="document-date">Последнее изменение: {new Date(doc.date).toISOString().split('T')[0].split('-').reverse().join('.')}</div>
                                 </div>
                             </div>
                         ))}

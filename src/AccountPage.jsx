@@ -1,6 +1,5 @@
-// AccountPage.jsx
-import React from 'react';
-import {Card, Button, Typography, Space, message} from 'antd';
+import React, { useState, useEffect, useRef } from 'react';
+import { Card, Button, Typography, Space, message } from 'antd';
 import { LogoutOutlined } from '@ant-design/icons';
 import './AccountPage.css';
 import { useNavigate } from "react-router-dom";
@@ -8,12 +7,69 @@ import { useNavigate } from "react-router-dom";
 const { Title, Text } = Typography;
 
 const AccountPage = () => {
-    // Пример email пользователя (в реальном приложении это будет из состояния или API)
-    const userEmail = 'user@example.com';
-
+    const [userEmail, setUserEmail] = useState('');
+    const [loading, setLoading] = useState(true);
     const navigate = useNavigate();
+    const isFetching = useRef(false); // Prevents concurrent fetches
 
-    // Функция выхода из аккаунта (заглушка, замените на реальную логику)
+    const fetchUserEmail = async () => {
+        if (isFetching.current) return; // Prevent multiple fetches
+        isFetching.current = true;
+
+        try {
+            const response = await fetch('http://localhost:8082/api/text/get-user-email', {
+                method: 'GET',
+                credentials: 'include',
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                setUserEmail(data.email);
+                setLoading(false);
+            } else if (response.status === 401) {
+                // Try to refresh token
+                const refreshResponse = await fetch('http://localhost:8082/api/auth/refresh', {
+                    method: 'POST',
+                    credentials: 'include',
+                });
+
+                if (refreshResponse.ok) {
+                    // Retry original request after successful refresh
+                    const retryResponse = await fetch('http://localhost:8082/api/text/get-user-email', {
+                        method: 'GET',
+                        credentials: 'include',
+                    });
+
+                    if (retryResponse.ok) {
+                        const retryData = await retryResponse.json();
+                        setUserEmail(retryData.email);
+                        setLoading(false);
+                    } else {
+                        message.error('Не удалось получить данные пользователя');
+                        navigate('/login');
+                    }
+                } else {
+                    message.error('Сессия истекла, пожалуйста, войдите заново');
+                    navigate('/login');
+                }
+            } else {
+                message.error('Ошибка при получении данных пользователя');
+                navigate('/login');
+            }
+        } catch (error) {
+            console.error('Fetch email error:', error);
+            message.error('Ошибка при получении данных пользователя');
+            navigate('/login');
+        } finally {
+            isFetching.current = false;
+        }
+    };
+
+    useEffect(() => {
+        fetchUserEmail();
+        // Empty dependency array ensures this runs only once on mount
+    }, []);
+
     const handleLogout = async () => {
         try {
             const response = await fetch('http://localhost:8082/api/auth/logout', {
@@ -26,7 +82,7 @@ const AccountPage = () => {
                 navigate('/login');
             } else {
                 message.error('Ошибка при выходе из аккаунта');
-                navigate('/login'); // Перенаправляем даже при ошибке
+                navigate('/login');
             }
         } catch (error) {
             console.error('Logout error:', error);
@@ -34,6 +90,10 @@ const AccountPage = () => {
             navigate('/login');
         }
     };
+
+    if (loading) {
+        return <div>Загрузка...</div>;
+    }
 
     return (
         <div className="account-page-container">
