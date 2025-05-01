@@ -10,24 +10,53 @@ body {
     transition: background-color 0.3s ease;
 }
 
+body.dark-theme {
+    background-color: #1f1f1f; /* Fallback color */
+    color: #e0e0e0 !important;
+    position: relative; /* Ensure positioning context for ::before */
+}
+
+body.dark-theme::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url('images/pawel-nolbert-4u2U8EO9OzY-unsplash.jpg'); /* Moved from body.dark-theme */
+    background-size: cover;
+    background-attachment: fixed;
+    background-position: center;
+    filter: blur(30px); /* Apply blur to the background image */
+    z-index: -1; /* Place behind the content */
+}
+
 .ant-layout-sider {
     width: 280px !important;
     max-width: 280px !important;
     min-width: 280px !important;
     flex: 0 0 280px !important;
     background: #fff !important;
-    box-shadow: 2px 0 8px rgba(0, 0, 0, 0.05); /* Добавляем легкую тень */
+    box-shadow: 2px 0 8px rgba(0, 0, 0, 0.05);
 }
 
-/* Основной контейнер контента */
+body.dark-theme .ant-layout-sider {
+    background: rgba(30, 30, 30, 0.7) !important; /* Semi-transparent for blur */
+    backdrop-filter: blur(10px); /* Frosted glass effect */
+    box-shadow: 2px 0 8px rgba(0, 0, 0, 0.2);
+}
+
+body.dark-theme .ant-layout:not(.ant-layout-sider) {
+    background: transparent !important;
+}
+
 .ant-layout-content {
     padding: 15px 24px 0 24px !important;
     min-height: 100vh;
-    background-color: transparent; /* ЯВНО делаем прозрачным по умолчанию */
-    transition: background-color 0.3s ease; /* Добавляем transition */
+    background-color: transparent;
+    transition: background-color 0.3s ease;
 }
 
-/* Логотип */
 .logo {
     height: 80px;
     display: flex;
@@ -37,10 +66,14 @@ body {
     font-size: 24px;
     color: #1890ff;
     font-weight: bold;
-    padding: 0 24px; /* Добавляем отступы по бокам */
+    padding: 0 24px;
 }
 
-/* Пункты меню */
+body.dark-theme .logo {
+    color: #40c4ff;
+    border-bottom-color: rgba(255, 255, 255, 0.2);
+}
+
 .ant-menu {
     padding: 0 16px !important;
     background: transparent !important;
@@ -58,35 +91,82 @@ body {
     transition: none;
 }
 
-/* Состояние при наведении */
+body.dark-theme .ant-menu-item {
+    color: #b0b0b0 !important;
+}
+
 .ant-menu-item:hover {
     color: #002443 !important;
     transition: none;
 }
 
-/* Активный пункт - без задержек */
+body.dark-theme .ant-menu-item:hover {
+    color: #ffffff !important;
+    background: rgba(255, 255, 255, 0.1) !important;
+    backdrop-filter: blur(5px);
+}
+
 .ant-menu-item-selected,
 .ant-menu-item-selected .anticon,
 .ant-menu-item-selected:hover,
 .ant-menu-item-selected:hover .anticon {
     color: #1890ff !important;
     background-color: #f0f7ff !important;
-    transition: none !important; /* Убираем анимацию для активного состояния */
+    transition: none !important;
 }
 
-/* Иконки в меню */
+body.dark-theme .ant-menu-item-selected,
+body.dark-theme .ant-menu-item-selected .anticon,
+body.dark-theme .ant-menu-item-selected:hover,
+body.dark-theme .ant-menu-item-selected:hover .anticon {
+    color: #40c4ff !important;
+    background: rgba(64, 196, 255, 0.2) !important;
+    backdrop-filter: blur(5px);
+}
+
 .ant-menu-item .anticon {
     font-size: 22px !important;
+    background: transparent;
     margin-right: 6px !important;
-    transition: color 0.2s ease-out !important; /* Синхронизируем с текстом */
+    transition: color 0.2s ease-out !important;
 }
 
-/* Состояние при наведении - мгновенное изменение */
-.ant-menu-item:not(.ant-menu-item-selected):hover,
-.ant-menu-item:not(.ant-menu-item-selected):hover .anticon {
+body.dark-theme .ant-menu-item .anticon {
+    background: transparent !important; /* Ensure transparency in dark theme */
+    color: #b0b0b0 !important; /* Match the menu item text color */
+}
+
+/* Dark theme: Menu item hover state */
+body.dark-theme .ant-menu-item:not(.ant-menu-item-selected):hover .anticon {
+    background: transparent !important; /* Ensure icon remains transparent on hover */
+    color: #ffffff !important; /* Existing color */
+}
+
+/* Dark theme: Menu item selected state */
+body.dark-theme .ant-menu-item-selected .anticon,
+body.dark-theme .ant-menu-item-selected:hover .anticon {
+    background: transparent !important; /* Ensure icon remains transparent when selected */
+    color: #40c4ff !important; /* Existing color */
+}
+
+.ant-menu-item:not(.ant-menu-item-selected):hover {
     color: #000 !important;
-    background-color: #f5f5f7 !important;
-    transition-duration: 0.2s !important; /* Уменьшаем длительность анимации */
+    background: transparent !important;
+    transition-duration: 0.2s !important;
+}
+
+body.dark-theme .ant-menu-item:not(.ant-menu-item-selected):hover {
+    color: #ffffff !important;
+    background: rgba(255, 255, 255, 0.1) !important;
+}
+
+.ant-layout-sider-trigger {
+    width: 280px !important;
+    background-color: #99ceff !important;
+}
+
+body.dark-theme .ant-layout-sider-trigger {
+    background-color: #40c4ff !important;
 }
 
 .editor-container {
@@ -114,7 +194,7 @@ body {
     position: absolute;
     left: 50%;
     transform: translateX(-50%);
-    width: 60%; /* Ограничиваем ширину для лучшего контроля */
+    width: 60%;
     display: flex;
     justify-content: center;
 }
@@ -124,18 +204,17 @@ body {
     gap: 16px;
 }
 
-/* Общий стиль для кнопок в заголовке редактора */
 .editor-header .back-button,
 .editor-header .save-button {
     font-size: 18px;
     height: 40px;
     padding: 0 16px;
-    margin: 0; /* Убираем лишние отступы */
+    margin: 0;
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 140px; /* Фиксированная ширина для одинакового размера */
-    z-index: 1; /* Обе кнопки поверх заголовка */
+    width: 140px;
+    z-index: 1;
 }
 
 .back-button {
@@ -143,14 +222,34 @@ body {
     background: #dfdede;
     height: 40px;
     padding: 0 16px;
-    z-index: 1; /* Чтобы кнопка была поверх заголовка */
+    z-index: 1;
+}
+
+body.dark-theme .back-button {
+    background: rgba(80, 80, 80, 0.7) !important;
+    backdrop-filter: blur(10px);
+    color: #e0e0e0 !important;
+}
+
+body.dark-theme .back-button:hover {
+    background: rgba(100, 100, 100, 0.7) !important;
 }
 
 .save-button {
     font-size: 18px;
     height: 40px;
     padding: 0 16px;
-    z-index: 1; /* Чтобы кнопка была поверх заголовка */
+    z-index: 1;
+}
+
+body.dark-theme .save-button {
+    background: rgba(64, 196, 255, 0.7) !important;
+    backdrop-filter: blur(10px);
+    color: #ffffff !important;
+}
+
+body.dark-theme .save-button:hover {
+    background: rgba(64, 196, 255, 0.9) !important;
 }
 
 .document-title-input {
@@ -166,15 +265,26 @@ body {
     background: transparent;
 }
 
+body.dark-theme .document-title-input {
+    color: #e0e0e0;
+}
+
 .document-title-input:hover {
     border-bottom: 2px solid #f0f0f0;
+}
+
+body.dark-theme .document-title-input:hover {
+    border-bottom: 2px solid rgba(255, 255, 255, 0.3);
 }
 
 .document-title-input:focus {
     border-bottom: 2px solid #1890ff;
 }
 
-/* Контейнер для карточек документов */
+body.dark-theme .document-title-input:focus {
+    border-bottom: 2px solid #40c4ff;
+}
+
 .documents-container {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
@@ -187,7 +297,7 @@ body {
 
 .editor-wrapper {
     position: relative;
-    width: 800px;
+    width: 1000px;
     height: calc(100% - 60px);
     flex-shrink: 0;
 }
@@ -200,8 +310,14 @@ body {
     height: 100%;
     display: flex;
     flex-direction: column;
-    font-size: var(--editor-font-size); /* Use the variable */
-    font-family: var(--editor-font-family); /* Use the variable */
+    font-size: var(--editor-font-size);
+    font-family: var(--editor-font-family);
+}
+
+body.dark-theme .custom-quill {
+    background: rgba(35, 35, 35, 0.7) !important;
+    backdrop-filter: blur(70px);
+    box-shadow: 0 1px 5px rgba(0, 0, 0, 0.3);
 }
 
 .custom-quill .ql-container {
@@ -211,25 +327,76 @@ body {
     overflow-y: auto;
 }
 
+body.dark-theme .custom-quill .ql-container {
+    background: transparent;
+    color: #e0e0e0;
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
 .custom-quill .ql-editor {
     min-height: auto;
-    padding: 12px; /* Уменьшили нижний padding и убрали большой bottom */
+    padding: 12px;
+}
+
+body.dark-theme .custom-quill .ql-editor {
+    color: #e0e0e0;
 }
 
 .custom-quill .ql-toolbar {
     border-radius: 8px 8px 0 0;
 }
 
-/* Меню обработки текста */
+body.dark-theme .custom-quill .ql-toolbar {
+    background: rgba(60, 60, 60, 0.7);
+    backdrop-filter: blur(10px);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+body.dark-theme .custom-quill .ql-toolbar .ql-stroke {
+    stroke: #ccc;
+}
+
+body.dark-theme .custom-quill .ql-toolbar .ql-fill {
+    fill: #ccc;
+}
+
+body.dark-theme .custom-quill .ql-toolbar button:hover .ql-stroke,
+body.dark-theme .custom-quill .ql-toolbar button:hover .ql-fill,
+body.dark-theme .custom-quill .ql-toolbar button.ql-active .ql-stroke,
+body.dark-theme .custom-quill .ql-toolbar button.ql-active .ql-fill {
+    stroke: #40c4ff;
+    fill: #40c4ff;
+}
+
+body.dark-theme .custom-quill .ql-toolbar .ql-picker-label,
+body.dark-theme .custom-quill .ql-toolbar .ql-picker-item {
+    color: #ccc;
+}
+
+body.dark-theme .custom-quill .ql-toolbar .ql-picker-label:hover,
+body.dark-theme .custom-quill .ql-toolbar .ql-picker-item:hover {
+    color: #40c4ff;
+}
+
+body.dark-theme .custom-quill .ql-toolbar .ql-picker-options {
+    background: rgba(60, 60, 60, 0.9);
+    backdrop-filter: blur(10px);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
 .processing-menu {
     width: 220px;
     max-height: 80vh;
     padding: 0;
-    text-align: left; /* Добавляем выравнивание по левому краю */
-    transition: width 0.1s ease; /* Плавный переход для изменения ширины */
+    text-align: left;
+    transition: width 0.1s ease;
+    background: #fff;
 }
 
-/* По умолчанию */
+body.dark-theme .processing-menu {
+    background: transparent !important;
+}
+
 .processing-menu.wide-preview {
     width: 23vw;
     min-width: 220px;
@@ -239,6 +406,42 @@ body {
 .processing-popover {
     margin-left: -824px;
     max-height: 80vh;
+}
+
+/* Ensure the processing-menu itself is dark */
+
+body.dark-theme .ant-popover-inner {
+    background: rgba(50, 50, 50, 0.7) !important;
+    backdrop-filter: blur(10px);
+}
+
+body.dark-theme .ant-popover-arrow {
+    --antd-arrow-background-color: rgba(50, 50, 50, 0.9);
+    --antd-arrow-background-filter: blur(10px);
+}
+
+
+body.dark-theme .processing-options:hover {
+    color: #1890ff;
+}
+
+/* Ensure each option has a transparent background by default */
+body.dark-theme .processing-option {
+    background: transparent !important;
+    backdrop-filter: blur(10px) !important;
+    border-radius: 8px !important;
+    color: #ffffff;
+}
+
+/* Hover effect for options */
+body.dark-theme .processing-option:hover {
+    background: rgb(62, 62, 62) !important;
+    backdrop-filter: blur(5px);
+    color: #ffffff !important;
+}
+
+body.dark-theme .processing-options {
+    background: transparent !important;
 }
 
 .options-container {
@@ -252,20 +455,28 @@ body {
     color: #1890ff;
     border-bottom: 1px solid #f0f0f0;
     background: #fafafa;
-    text-align: left; /* Выравнивание категорий по левому краю */
+    text-align: left;
+}
+
+body.dark-theme .processing-category {
+    color: #40c4ff;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    background: rgba(70, 70, 70, 0.7);
+    border-radius: 8px;
 }
 
 .processing-options {
     padding: 0;
-    text-align: left; /* Выравнивание опций по левому краю */
+    text-align: left;
+    backdrop-filter: blur(5px);
 }
 
 .processing-option {
     margin: 0 !important;
     border-radius: 0 !important;
     width: 100%;
-    text-align: left; /* Явное выравнивание текста по левому краю */
-    justify-content: flex-start; /* Выравнивание содержимого кнопки по левому краю */
+    text-align: left;
+    justify-content: flex-start;
     display: flex;
     transition: all 0.2s;
 }
@@ -275,24 +486,36 @@ body {
     cursor: pointer;
 }
 
-/* Превью обработки */
+body.dark-theme .processing-option:hover {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(5px);
+}
+
 .preview-container {
     display: flex;
     flex-direction: column;
     height: 100%;
     padding: 1px;
     width: 100%;
-    max-height: 80vh; /* Ограничиваем максимальную высоту до 80% высоты экрана */
-    overflow: hidden; /* Предотвращаем выход за пределы */
+    max-height: 80vh;
+    overflow: hidden;
+}
+
+body.dark-theme .preview-container {
+    background: rgba(50, 50, 50, 0.7);
+    backdrop-filter: blur(10px);
 }
 
 .preview-text {
     flex-grow: 1;
     font-size: 15px;
-    overflow-y: auto; /* Включаем прокрутку по вертикали при переполнении */
+    overflow-y: auto;
     padding: 8px;
     margin-bottom: 10px;
-    max-height: 90vh; /* Начальное ограничение, можно убрать, если не нужно */
+}
+
+body.dark-theme .preview-text {
+    color: #e0e0e0;
 }
 
 .preview-text h4 {
@@ -300,12 +523,19 @@ body {
     color: #333;
 }
 
+body.dark-theme .preview-text h4 {
+    color: #e0e0e0;
+}
+
 .preview-buttons {
     padding: 12px 8px 8px;
     display: flex;
     justify-content: space-between;
-    border-top: 1px solid #f0f0f0;
     gap: 8px;
+}
+
+body.dark-theme .preview-buttons {
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .preview-buttons .ant-btn {
@@ -317,6 +547,19 @@ body {
     justify-content: center;
 }
 
+body.dark-theme .preview-buttons .ant-btn {
+    background: rgba(80, 80, 80, 0.7);
+    backdrop-filter: blur(10px);
+    border-color: rgba(80, 80, 80, 0.7);
+    color: #e0e0e0;
+}
+
+body.dark-theme .preview-buttons .ant-btn:hover {
+    background: rgba(100, 100, 100, 0.7);
+    border-color: rgba(80, 80, 80, 0.7);
+    color: #e0e0e0;
+}
+
 .spinner-container {
     display: flex;
     justify-content: center;
@@ -325,20 +568,30 @@ body {
     padding: 16px;
 }
 
-/* Стили для карточек */
 .ant-card {
     width: 100%;
     border-radius: 8px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.09);
     transition: all 0.2s ease;
-    margin: 0; /* Убираем margin */
-    height: 180px; /* Фиксированная высота */
+    margin: 0;
+    height: 180px;
     display: flex;
     flex-direction: column;
 }
 
+body.dark-theme .ant-card {
+    background: rgba(50, 50, 50, 0.7);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
 .ant-card:hover {
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+}
+
+body.dark-theme .ant-card:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
 }
 
 .ant-card-body {
@@ -354,11 +607,19 @@ body {
     border-bottom: 1px solid #f0f0f0;
 }
 
+body.dark-theme .ant-card-head {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
 .ant-card-head-title {
     white-space: normal;
     font-size: 16px;
     font-weight: 500;
     padding: 12px 0;
+}
+
+body.dark-theme .ant-card-head-title {
+    color: #e0e0e0;
 }
 
 .ant-card-meta-description {
@@ -372,7 +633,10 @@ body {
     -webkit-box-orient: vertical;
 }
 
-/* Дата документа */
+body.dark-theme .ant-card-meta-description {
+    color: #a0a0a0;
+}
+
 .document-date {
     margin-top: 8px;
     font-size: 12px;
@@ -380,15 +644,21 @@ body {
     align-self: flex-end;
 }
 
-/* Добавьте в конец App.css */
+body.dark-theme .document-date {
+    color: #888;
+}
 
 .document-card {
-    position: relative; /* Для позиционирования иконки */
+    position: relative;
 }
 
 .document-card:hover {
     transform: translateY(-5px) !important;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.10) !important;
+}
+
+body.dark-theme .document-card:hover {
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3) !important;
 }
 
 .delete-icon {
@@ -402,7 +672,15 @@ body {
 }
 
 .delete-icon:hover {
-    color: #ff4d4f; /* Красный цвет при наведении */
+    color: #ff4d4f;
+}
+
+body.dark-theme .delete-icon {
+    color: #888;
+}
+
+body.dark-theme .delete-icon:hover {
+    color: #ff7875;
 }
 
 .export-icon {
@@ -419,12 +697,12 @@ body {
     color: #1890ff;
 }
 
-body.dark-theme .delete-icon {
+body.dark-theme .export-icon {
     color: #888;
 }
 
-body.dark-theme .delete-icon:hover {
-    color: #ff7875;
+body.dark-theme .export-icon:hover {
+    color: #40c4ff;
 }
 
 .ant-card-head-title {
@@ -436,7 +714,16 @@ body.dark-theme .delete-icon:hover {
     border-radius: 4px;
 }
 
-/* Контейнер для документов */
+body.dark-theme .ant-btn-primary {
+    background: rgba(64, 196, 255, 0.7);
+    backdrop-filter: blur(10px);
+    border-color: transparent;
+}
+
+body.dark-theme .ant-btn-primary:hover {
+    background: rgba(64, 196, 255, 0.9);
+}
+
 .documents-wrapper {
     padding: 24px;
     width: 100%;
@@ -444,7 +731,6 @@ body.dark-theme .delete-icon:hover {
     margin: 0 auto;
 }
 
-/* Кнопка создания документа */
 .create-doc-btn {
     margin-bottom: 24px;
     width: 200px;
@@ -454,7 +740,16 @@ body.dark-theme .delete-icon:hover {
     z-index: 1;
 }
 
-/* Сетка карточек */
+body.dark-theme .create-doc-btn {
+    background: rgba(64, 196, 255, 0.7);
+    backdrop-filter: blur(50px);
+    color: #ffffff;
+}
+
+body.dark-theme .create-doc-btn:hover {
+    background: rgba(64, 196, 255, 0.9);
+}
+
 .documents-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
@@ -462,7 +757,6 @@ body.dark-theme .delete-icon:hover {
     width: 100%;
 }
 
-/* Стили карточек */
 .document-card {
     border-radius: 8px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.09);
@@ -472,6 +766,11 @@ body.dark-theme .delete-icon:hover {
     flex-direction: column;
     background: #fff;
     cursor: pointer;
+}
+
+body.dark-theme .document-card {
+    background: rgba(50, 50, 50, 0.7);
+    backdrop-filter: blur(10px);
 }
 
 .document-card:hover {
@@ -495,6 +794,10 @@ body.dark-theme .delete-icon:hover {
     text-overflow: ellipsis;
 }
 
+body.dark-theme .document-title {
+    color: #e0e0e0;
+}
+
 .document-preview {
     color: #6e6e73;
     font-size: 14px;
@@ -506,87 +809,118 @@ body.dark-theme .delete-icon:hover {
     -webkit-box-orient: vertical;
 }
 
-.document-date {
-    font-size: 12px;
-    color: #999;
-    margin-top: 8px;
+body.dark-theme .document-preview {
+    color: #a0a0a0;
 }
 
-/* Стили для модального окна удаления */
-/*.custom-delete-modal .ant-modal-content {*/
-/*    border-radius: 10px;*/
-/*    padding: 20px;*/
-/*    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);*/
-/*    background-color: #ffffff;*/
-/*    max-width: 380px;*/
-/*    width: 90%;*/
-/*    margin: 0 auto;*/
-/*    box-sizing: border-box;*/
-/*}*/
+.custom-delete-modal .ant-modal-content {
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+    background-color: #ffffff;
+    max-width: 380px;
+    width: 90%;
+    margin: 0 auto;
+    box-sizing: border-box;
+}
 
-/*.custom-delete-modal .ant-modal-header {*/
-/*    border-bottom: none;*/
-/*    padding: 0;*/
-/*    margin-bottom: 12px;*/
-/*    width: 100%;*/
-/*    display: flex; !* Добавляем flex для контроля выравнивания *!*/
-/*    justify-content: center; !* Центрируем заголовок *!*/
-/*}*/
+body.dark-theme .custom-delete-modal .ant-modal-content {
+    background: rgba(50, 50, 50, 0.7);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+}
 
-/*.custom-delete-modal .ant-modal-title {*/
-/*    font-size: 18px;*/
-/*    font-weight: 600;*/
-/*    text-align: center;*/
-/*    color: #1a1a1a;*/
-/*    line-height: 1.3;*/
-/*}*/
+.custom-delete-modal .ant-modal-header {
+    border-bottom: none;
+    padding: 0;
+    margin-bottom: 12px;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
 
-/*.custom-delete-modal .ant-modal-body {*/
-/*    padding: 0;*/
-/*    text-align: center !important;*/
-/*    font-size: 14px;*/
-/*    color: #4a4a4a;*/
-/*    line-height: 1.5;*/
-/*    width: 100%;*/
-/*}*/
+.custom-delete-modal .ant-modal-title {
+    font-size: 18px;
+    font-weight: 600;
+    text-align: center;
+    color: #1a1a1a;
+    line-height: 1.3;
+}
 
-/*.custom-delete-modal .ant-modal-footer {*/
-/*    border-top: none;*/
-/*    padding: 0;*/
-/*    display: flex !important;*/
-/*    justify-content: space-between !important;*/
-/*    gap: 10px;*/
-/*    width: 100%;*/
-/*    flex-wrap: wrap;*/
-/*    margin: 0;*/
-/*}*/
+body.dark-theme .custom-delete-modal .ant-modal-title {
+    color: #e0e0e0;
+}
 
-/*!* Стили для кнопок *!*/
-/*.custom-delete-modal .ant-btn {*/
-/*    width: 200px;*/
-/*    height: 36px;*/
-/*    border-radius: 6px;*/
-/*    font-size: 14px;*/
-/*    font-weight: 500;*/
-/*    display: inline-flex;*/
-/*    align-items: center;*/
-/*    justify-content: center;*/
-/*    transition: all 0.2s ease;*/
-/*    padding: 0 12px;*/
-/*    box-sizing: border-box;*/
-/*}*/
+.custom-delete-modal .ant-modal-body {
+    padding: 0;
+    text-align: center !important;
+    font-size: 14px;
+    color: #4a4a4a;
+    line-height: 1.5;
+    width: 100%;
+}
 
-/* Кнопка отмены */
+body.dark-theme .custom-delete-modal .ant-modal-body {
+    color: #e0e0e0;
+}
+
+.custom-delete-modal .ant-modal-footer {
+    border-top: none;
+    padding: 0;
+    display: flex !important;
+    justify-content: space-between !important;
+    gap: 10px;
+    width: 100%;
+    flex-wrap: wrap;
+    margin: 0;
+}
+
+.custom-delete-modal .ant-btn {
+    width: 200px;
+    height: 36px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    padding: 0 12px;
+    box-sizing: border-box;
+}
+
+body.dark-theme .custom-delete-modal .ant-btn {
+    background: rgba(80, 80, 80, 0.7);
+    backdrop-filter: blur(10px);
+    color: #e0e0e0;
+}
+
+body.dark-theme .custom-delete-modal .ant-btn:hover {
+    background: rgba(100, 100, 100, 0.7);
+}
+
 .custom-delete-modal .ant-btn-default {
     border: 1px solid #d9d9d9;
     color: #4a4a4a;
     background-color: #f8f8f8;
 }
 
+body.dark-theme .custom-delete-modal .ant-btn-default {
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: rgba(80, 80, 80, 0.7);
+    color: #e0e0e0;
+}
+
 .custom-delete-modal .ant-btn-default:hover {
     border-color: #ff1818;
     color: #ff1919;
     background-color: #e6f7ff;
+}
+
+body.dark-theme .custom-delete-modal .ant-btn-default:hover {
+    border-color: #ff7875;
+    color: #ff7875;
+    background: rgba(100, 100, 100, 0.7);
 }
 
 .custom-delete-modal .ant-btn-default:disabled {
@@ -596,17 +930,33 @@ body.dark-theme .delete-icon:hover {
     cursor: not-allowed;
 }
 
-/* Кнопка удаления */
+body.dark-theme .custom-delete-modal .ant-btn-default:disabled {
+    border-color: rgba(255, 255, 255, 0.2);
+    color: #666;
+    background: rgba(80, 80, 80, 0.7);
+}
+
 .custom-delete-modal .ant-btn-primary.ant-btn-dangerous {
     background-color: #ff4d4f;
     border-color: #ff4d4f;
     color: #ffffff;
 }
 
+body.dark-theme .custom-delete-modal .ant-btn-primary.ant-btn-dangerous {
+    background: rgba(255, 77, 79, 0.7);
+    backdrop-filter: blur(10px);
+    border-color: transparent;
+}
+
 .custom-delete-modal .ant-btn-primary.ant-btn-dangerous:hover,
 .custom-delete-modal .ant-btn-primary.ant-btn-dangerous:focus {
     background-color: #ff7875;
     border-color: #ff7875;
+}
+
+body.dark-theme .custom-delete-modal .ant-btn-primary.ant-btn-dangerous:hover,
+body.dark-theme .custom-delete-modal .ant-btn-primary.ant-btn-dangerous:focus {
+    background: rgba(255, 77, 79, 0.9);
 }
 
 .custom-delete-modal .ant-btn-primary.ant-btn-dangerous:disabled {
@@ -616,15 +966,28 @@ body.dark-theme .delete-icon:hover {
     cursor: not-allowed;
 }
 
+body.dark-theme .custom-delete-modal .ant-btn-primary.ant-btn-dangerous:disabled {
+    background: rgba(255, 77, 79, 0.5);
+    color: #aaa;
+}
+
 .upload-btn {
     background-color: #ffffff;
     border-color: #d9d9d9;
     color: #000000;
 }
 
-/* Ensure these styles are at the end of App.css */
+body.dark-theme .upload-btn {
+    background: rgba(80, 80, 80, 0.7);
+    backdrop-filter: blur(10px);
+    border-color: rgba(255, 255, 255, 0.2);
+    color: #e0e0e0;
+}
 
-/* Styles for Quill Better Table */
+body.dark-theme .upload-btn:hover {
+    background: rgba(100, 100, 100, 0.7);
+}
+
 .quill-better-table {
     width: 100%;
     border-collapse: collapse;
@@ -644,14 +1007,14 @@ body.dark-theme .delete-icon:hover {
 
 body.dark-theme .quill-better-table td,
 body.dark-theme .quill-better-table th {
-    border-color: #555;
+    border-color: rgba(255, 255, 255, 0.2);
 }
 
 body.dark-theme .quill-better-table th {
-    background-color: #3a3a3a;
+    background: rgba(80, 80, 80, 0.7);
+    backdrop-filter: blur(10px);
 }
 
-/* Styles for table operation menu */
 .table-operation-menu {
     background: #fff;
     border: 1px solid #d9d9d9;
@@ -661,8 +1024,9 @@ body.dark-theme .quill-better-table th {
 }
 
 body.dark-theme .table-operation-menu {
-    background: #3a3a3a;
-    border-color: #555;
+    background: rgba(50, 50, 50, 0.7);
+    backdrop-filter: blur(10px);
+    border-color: rgba(255, 255, 255, 0.2);
 }
 
 .table-operation-menu .item {
@@ -681,10 +1045,9 @@ body.dark-theme .table-operation-menu .item {
 }
 
 body.dark-theme .table-operation-menu .item:hover {
-    background: #4a4a4a;
+    background: rgba(100, 100, 100, 0.7);
 }
 
-/* Styles for formula rendering */
 span.ql-formula {
     background-color: #f9f9f9;
     padding: 2px 4px;
@@ -693,12 +1056,12 @@ span.ql-formula {
 }
 
 body.dark-theme span.ql-formula {
-    background-color: #3a3a3a;
-    border-color: #555;
+    background: rgba(80, 80, 80, 0.7);
+    backdrop-filter: blur(10px);
+    border-color: rgba(255, 255, 255, 0.2);
     color: #e0e0e0;
 }
 
-/* Toolbar button styles for new features */
 .ql-toolbar .ql-formula,
 .ql-toolbar .ql-table {
     display: inline-block;
@@ -717,7 +1080,6 @@ body.dark-theme .ql-toolbar .ql-table.ql-active {
     filter: invert(60%) sepia(100%) hue-rotate(170deg) saturate(500%);
 }
 
-/* Ensure images are responsive */
 .ql-editor img {
     max-width: 100%;
     height: auto;
@@ -725,7 +1087,6 @@ body.dark-theme .ql-toolbar .ql-table.ql-active {
     margin: 8px 0;
 }
 
-/* Align text options */
 .ql-align-center {
     text-align: center;
 }
@@ -738,7 +1099,6 @@ body.dark-theme .ql-toolbar .ql-table.ql-active {
     text-align: justify;
 }
 
-/* Адаптация модального окна для маленьких экранов */
 @media (max-width: 768px) {
     .custom-delete-modal .ant-modal-content {
         width: 90%;
@@ -752,7 +1112,6 @@ body.dark-theme .ql-toolbar .ql-table.ql-active {
     }
 }
 
-/* Адаптация для маленьких экранов */
 @media (max-width: 1200px) {
     .ant-layout-sider {
         width: 80px !important;
@@ -763,70 +1122,69 @@ body.dark-theme .ql-toolbar .ql-table.ql-active {
 
     .editor-header .back-button,
     .editor-header .save-button {
-        width: 100px; /* Уменьшаем ширину */
-        font-size: 13px; /* Уменьшаем размер шрифта */
-        padding: 0 12px; /* Уменьшаем внутренние отступы */
+        width: 100px;
+        font-size: 13px;
+        padding: 0 12px;
     }
 
     .ant-menu-item {
-        padding: 0 !important; /* Убираем отступы полностью */
-        display: flex !important; /* Убеждаемся, что используется flex */
-        justify-content: center !important; /* Центрируем содержимое */
-        align-items: center !important; /* Вертикальное центрирование */
+        padding: 0 !important;
+        display: flex !important;
+        justify-content: center !important;
+        align-items: center !important;
     }
 
     .ant-menu-item span:not(.anticon) {
-        display: none; /* Скрываем текст, оставляем только иконки */
+        display: none;
     }
 
     .ant-menu-item .anticon {
-        margin-right: 0 !important; /* Убираем отступ от иконки */
-        margin-left: 0 !important; /* Убираем возможный левый отступ */
-        font-size: 24px !important; /* Увеличиваем иконку для читаемости */
+        margin-right: 0 !important;
+        margin-left: 0 !important;
+        font-size: 24px !important;
     }
 
     .logo {
-        font-size: 18px; /* Уменьшаем логотип */
+        font-size: 18px;
         padding: 0 16px;
         justify-content: center;
     }
 }
 
-@media (max-width: 980px) {
+@media (max-width: 1500px) {
     .editor-wrapper {
-        width: 100%; /* Занимает всё доступное пространство */
-        max-width: calc(100vw - 112px); /* Учитываем ширину Sider (80px) + отступы (16px + 16px) */
+        width: 85%;
+        max-width: calc(100vw - 112px);
     }
 }
 
 @media (max-width: 768px) {
     .editor-container {
-        padding: 0 16px 16px; /* Уменьшаем отступы */
+        padding: 0 16px 16px;
     }
 
     .editor-wrapper {
-        width: 100%; /* Занимает всё доступное пространство */
-        max-width: calc(100vw - 112px); /* Учитываем ширину Sider (80px) + отступы (16px + 16px) */
+        width: 100%;
+        max-width: calc(100vw - 112px);
     }
 
     .document-title-input {
-        font-size: 20px; /* Уменьшаем заголовок */
+        font-size: 20px;
     }
 
     .custom-quill .ql-editor {
-        padding: 8px; /* Уменьшаем внутренние отступы редактора */
+        padding: 8px;
     }
 
     .editor-header .back-button,
     .editor-header .save-button {
-        width: 40px; /* Только иконка */
-        padding: 0; /* Минимальные отступы */
+        width: 40px;
+        padding: 0;
     }
 
-    /* Убеждаемся, что иконки остаются видимыми */
     .editor-header .back-button .ant-btn-icon,
     .editor-header .save-button .ant-btn-icon {
-        display: inline-flex; /* Явно показываем обертку иконки */
+        display: inline-flex;
         align-items: center;
         justify-content: center;
     }
@@ -834,10 +1192,9 @@ body.dark-theme .ql-toolbar .ql-table.ql-active {
     .editor-header .back-button .anticon,
     .editor-header .save-button .anticon {
         font-size: 20px;
-        display: inline-block; /* Явно показываем иконки */
+        display: inline-block;
     }
 
-    /* Скрываем только текстовый span */
     .editor-header .back-button > span:not(.ant-btn-icon),
     .editor-header .save-button > span:not(.ant-btn-icon) {
         display: none;
@@ -846,33 +1203,33 @@ body.dark-theme .ql-toolbar .ql-table.ql-active {
 
 @media (max-width: 1500px) {
     .processing-menu.wide-preview {
-        width: 25vw; /* На маленьких экранах ширина предпросмотра в % от ширины */
-        max-width: calc(100vw - 12px); /* Учитываем Sider (80px) + отступы */
+        width: 25vw;
+        max-width: calc(100vw - 112px);
     }
 }
 
-/* Адаптация для маленьких экранов */
 @media (max-width: 768px) {
     .processing-popover {
-        width: 70%; /* Занимает всю ширину редактора */
-        max-width: none; /* Убираем ограничение ширины */
-        margin: 0; /* Убираем смещение */
-        position: absolute; /* Встраиваем в редактор */
-        bottom: 0; /* Привязываем к нижней части редактора */
+        width: 70%;
+        max-width: none;
+        margin: 0;
+        position: absolute;
+        bottom: 0;
         left: 0;
         right: 0;
-        z-index: 1000; /* Убедимся, что поверх других элементов */
+        z-index: 1000;
     }
 
     .processing-menu {
-        width: 100%; /* Растягиваем на всю ширину редактора */
-        max-height: 90vh; /* Ограничиваем высоту, чтобы не перекрывал весь редактор */
-        background: rgba(255, 255, 255, 0.95); /* Полупрозрачный фон для читаемости */
-        box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1); /* Тень сверху */
+        width: 100%;
+        max-height: 90vh;
+        background: rgba(50, 50, 50, 0.95);
+        backdrop-filter: blur(10px);
+        box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);
     }
 
     .processing-menu.wide-preview {
-        width: 100%; /* Предпросмотр тоже занимает всю ширину */
+        width: 100%;
         max-width: none;
     }
 
@@ -882,178 +1239,10 @@ body.dark-theme .ql-toolbar .ql-table.ql-active {
 
     .options-container {
         width: 100%;
-        overflow-x: hidden; /* Предотвращаем горизонтальную прокрутку */
+        overflow-x: hidden;
     }
 
     .processing-option {
-        padding: 8px 16px !important; /* Уменьшаем отступы для компактности */
+        padding: 8px 16px !important;
     }
-}
-
-/* --- Dark Theme Adjustments for App Layout (Add to App.css) --- */
-
-/* И стили для темной темы body задают темный фон */
-body.dark-theme {
-    background-color: #1f1f1f !important; /* Темный фон для ВСЕЙ страницы */
-    color: #e0e0e0 !important;
-}
-
-body.dark-theme .ant-layout-sider {
-    background: #2c2c2c !important; /* Dark sider background */
-    box-shadow: 2px 0 8px rgba(0, 0, 0, 0.15);
-}
-
-body.dark-theme .logo {
-    color: #1890ff; /* Keep logo color or adjust */
-    border-bottom-color: #444; /* Darker border */
-}
-
-body.dark-theme .ant-menu {
-    background: transparent !important;
-}
-
-body.dark-theme .ant-menu-item {
-    color: #b0b0b0 !important; /* Lighter grey for inactive menu items */
-}
-
-body.dark-theme .ant-menu-item:hover {
-    color: #ffffff !important; /* White on hover */
-    background-color: #3a3a3a !important; /* Darker hover background */
-}
-
-body.dark-theme .ant-menu-item-selected,
-body.dark-theme .ant-menu-item-selected .anticon,
-body.dark-theme .ant-menu-item-selected:hover,
-body.dark-theme .ant-menu-item-selected:hover .anticon {
-    color: #1890ff !important; /* Keep primary color for selected */
-    background-color: #252d3a !important; /* Darker blueish background for selected */
-}
-
-.dark-theme .ant-btn-default {
-    background-color: #1f1f1f;
-    border-color: #c8c8c8;
-    color: #c8c8c8;
-}
-
-.dark-theme .ant-btn-default:hover {
-    background-color: #1f1f1f !important;
-    border-color: #50a9ff !important;
-    color: #50a9ff !important;
-    box-shadow: 0 0 3px rgb(80, 169, 255);
-    transition: all 0.2s ease;
-}
-
-/* Adjust card styles for dark mode if needed (documents view) */
-body.dark-theme .document-card {
-    background: #2c2c2c;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-    border: 1px solid #444; /* Add a subtle border */
-}
-
-body.dark-theme .document-title {
-    color: #dcdcdc;
-}
-
-body.dark-theme .document-preview {
-    color: #a0a0a0;
-}
-
-body.dark-theme .document-date {
-    color: #888;
-}
-
-/* Adjust editor header in dark mode */
-body.dark-theme .editor-header {
-    /* Background might stay light for contrast or match body */
-}
-
-body.dark-theme .no-documents-message {
-    color: #e0e0e0;
-}
-
-body.dark-theme .document-title-input {
-    color: #e0e0e0; /* Lighter input text */
-}
-
-body.dark-theme .document-title-input:hover {
-    border-bottom: 2px solid #555;
-}
-
-body.dark-theme .document-title-input:focus {
-    border-bottom: 2px solid #1890ff;
-}
-
-body.dark-theme .back-button {
-    color: #e0e0e0 !important;
-    background-color: #404040 !important;
-}
-
-body.dark-theme .back-button:hover {
-    color: #e0e0e0 !important;
-    background-color: #4e4e4e !important;
-}
-
-/* Adjust Quill Toolbar for Dark Mode */
-body.dark-theme .custom-quill .ql-toolbar {
-    background: #333;
-    border-color: #4a4a4a;
-    border-radius: 8px 8px 0 0;
-}
-
-body.dark-theme .custom-quill .ql-toolbar .ql-stroke {
-    stroke: #aaa;
-}
-
-body.dark-theme .custom-quill .ql-toolbar .ql-fill {
-    fill: #aaa;
-}
-
-body.dark-theme .custom-quill .ql-toolbar .ql-picker-label {
-    color: #ccc;
-}
-
-body.dark-theme .custom-quill .ql-toolbar button:hover .ql-stroke,
-body.dark-theme .custom-quill .ql-toolbar button:hover .ql-fill,
-body.dark-theme .custom-quill .ql-toolbar button.ql-active .ql-stroke,
-body.dark-theme .custom-quill .ql-toolbar button.ql-active .ql-fill {
-    stroke: #1890ff;
-    fill: #1890ff;
-}
-
-body.dark-theme .custom-quill .ql-toolbar .ql-picker-label:hover,
-body.dark-theme .custom-quill .ql-toolbar .ql-picker-item:hover {
-    color: #1890ff;
-}
-
-body.dark-theme .custom-quill .ql-toolbar .ql-picker.ql-expanded .ql-picker-label {
-    border-color: #555;
-}
-
-body.dark-theme .custom-quill .ql-toolbar .ql-picker-options {
-    background-color: #3a3a3a;
-    border-color: #555;
-}
-
-body.dark-theme .custom-quill .ql-toolbar .ql-picker-item {
-    color: #ccc;
-}
-
-body.dark-theme .custom-quill .ql-container {
-    border-color: #4a4a4a;
-    background-color: #2a2a2a; /* Dark editor background */
-    color: #e0e0e0; /* Light editor text */
-    border-radius: 0 0 8px 8px;
-}
-
-/* ЦЕЛЕВОЕ ИСПРАВЛЕНИЕ: Убираем фон у основного контейнера Layout (НЕ Sider) */
-/* Это тот <section class="ant-layout">, который содержит Content */
-body.dark-theme .ant-layout:not(.ant-layout-sider) {
-    background-color: transparent !important;
-}
-
-/* Состояние при наведении неактивного пункта в темной теме */
-body.dark-theme .ant-menu-item:not(.ant-menu-item-selected):hover,
-body.dark-theme .ant-menu-item:not(.ant-menu-item-selected):hover .anticon {
-    color: #ffffff !important; /* White on hover */
-    background-color: #3a3a3a !important; /* Darker hover background */
 }

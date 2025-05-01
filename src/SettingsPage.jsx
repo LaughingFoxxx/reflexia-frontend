@@ -14,6 +14,7 @@ const fontFamilies = [
     { value: 'Times New Roman, serif', label: 'Times New Roman' },
     { value: 'Georgia, serif', label: 'Georgia' },
     { value: 'Courier New, monospace', label: 'Courier New' },
+    { value: 'Montserrat, sans-serif', label: 'Montserrat' },
 ];
 
 // Define available font sizes

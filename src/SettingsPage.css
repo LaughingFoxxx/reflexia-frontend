@@ -54,12 +54,14 @@ body.dark-theme {
 }
 
 body.dark-theme .settings-page-container .ant-card {
-    background-color: #2c2c2c; /* Darker card background */
+    background: rgba(43, 43, 43, 0.6) !important;
+    backdrop-filter: blur(25px);
     border-color: #444; /* Darker border */
 }
 
 body.dark-theme .settings-page-container .ant-card-head {
-    background-color: #333333; /* Darker card header background */
+    background: rgba(43, 43, 43, 0.6) !important;
+    backdrop-filter: blur(25px); /* Darker card header background */
     border-bottom: 1px solid #4a4a4a;
 }
 
@@ -72,7 +74,8 @@ body.dark-theme .settings-page-container .ant-typography {
 body.dark-theme .settings-page-container .ant-select-selector,
 body.dark-theme .settings-page-container .ant-input, /* Include inputs if you add them */
 body.dark-theme .settings-page-container .ant-radio-button-wrapper {
-    background-color: #3a3a3a !important;
+    background: rgba(43, 43, 43, 0.78) !important;
+    backdrop-filter: blur(50px);
     border-color: #555 !important;
     color: #dcdcdc !important;
 }
@@ -86,7 +89,8 @@ body.dark-theme .settings-page-container .ant-select-arrow {
 
 body.dark-theme .settings-page-container .ant-select-dropdown,
 body.dark-theme .ant-select-dropdown { /* Make dropdown dark too */
-    background-color: #3a3a3a;
+    background: rgba(43, 43, 43, 0.29) !important;
+    backdrop-filter: blur(25px);
 }
 
 body.dark-theme .ant-select-item {

@@ -46,6 +46,7 @@ const App = () => {
     const quillRef = useRef(null);
     const [documentToDelete, setDocumentToDelete] = useState(null);
     const navigate = useNavigate();
+    const [collapsed, setCollapsed] = useState(false);
 
     // Отслеживание изменения размера экрана
     useEffect(() => {
@@ -197,7 +198,7 @@ const App = () => {
                 const updatedAtDate = new Date(doc.updatedAt);
                 const formattedDate = isNaN(updatedAtDate) ? 'Unknown Date' : updatedAtDate.toISOString().split('T')[0];
                 const cleanText = stripHtml(doc.text || '');
-                const previewText = cleanText.substring(0, 100) + (cleanText.length > 100 ? '...' : '') || `Content for ${doc.documentName || 'Untitled'}...`;
+                const previewText = cleanText.substring(0, 100) + (cleanText.length > 100 ? '...' : '') || `Начните печатать...`;
 
                 return {
                     id: doc.documentId || `missing_id_${Math.random()}`,
@@ -282,7 +283,7 @@ const App = () => {
         const updatedAtDate = new Date(doc.updatedAt);
         const formattedDate = isNaN(updatedAtDate) ? 'Unknown Date' : updatedAtDate.toISOString().split('T')[0];
         const cleanText = stripHtml(doc.text || '');
-        const previewText = cleanText.substring(0, 100) + (cleanText.length > 100 ? '...' : '') || `Content for ${doc.documentName || 'Untitled'}...`;
+        const previewText = cleanText.substring(0, 100) + (cleanText.length > 100 ? '...' : '') || `Начните печатать...'}...`;
 
         const formattedDoc = {
             id: doc.documentId,
@@ -472,7 +473,7 @@ const App = () => {
                 </div>
             ) : isProcessing ? (
                 <div className="spinner-container">
-                    <Spin />
+                    <Spin indicator={<LoadingOutlined spin/>} size="large"/>
                 </div>
             ) : (
                 <div className="options-container">
@@ -804,7 +805,7 @@ const App = () => {
 
     return (
         <Layout style={{ minHeight: '100vh' }}>
-            <Sider width={250} className="app-sider">
+            <Sider width={250} className="app-sider" collapsible collapsed={collapsed} onCollapse={value => setCollapsed(value)} lightTriggerColor={'#333131'} >
                 <div className="logo">Рефлексия AI</div>
                 <Menu
                     theme={document.body.classList.contains('dark-theme') ? 'dark' : 'light'}
