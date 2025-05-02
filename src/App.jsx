@@ -11,7 +11,33 @@ import {
     DeleteOutlined,
     LogoutOutlined,
     CopyOutlined,
-    UploadOutlined, ExportOutlined
+    UploadOutlined,
+    ExportOutlined,
+    EyeOutlined,
+    ScissorOutlined,
+    BulbOutlined,
+    EditOutlined,
+    SolutionOutlined,
+    SmileOutlined,
+    FontSizeOutlined,
+    RetweetOutlined,
+    TagOutlined,
+    CheckSquareOutlined,
+    ForwardOutlined,
+    UnorderedListOutlined,
+    BookOutlined,
+    FileDoneOutlined,
+    SearchOutlined,
+    SoundOutlined,
+    MailOutlined,
+    HeartOutlined,
+    GlobalOutlined,
+    TranslationOutlined,
+    QuestionCircleOutlined,
+    InfoCircleOutlined,
+    ReadOutlined,
+    TwitterOutlined,
+    LinkOutlined
 } from '@ant-design/icons';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
@@ -309,11 +335,58 @@ const App = () => {
     ];
 
     const processingOptions = [
-        { category: "Улучшение текста", options: ["Повысить ясность", "Сделать короче", "Развить мысль", "Исправить ошибки", "Формальный тон", "Неформальный тон", "Упростить язык"] },
-        { category: "Генерация", options: ["Пересказать", "Придумать заголовок", "Найти задачи", "Продолжить писать", "Создать список", "Написать введение", "Написать заключение"] },
-        { category: "Анализ и формат", options: ["Извлечь ключевые слова", "Определить тональность", "Форматировать как Email", "Форматировать как Отчет", "Добавить Эмодзи"] },
-        { category: "Перевод", options: ["Перевести на Английский", "Перевести на Немецкий", "Перевести на Французский", "Определить язык"] },
-        { category: "Другое", options: ["Объяснить это", "Превратить в стих", "Сделать твит", "Связанный факт"] },
+        {
+            category: "Улучшение текста",
+            options: [
+                { name: "Повысить ясность", emoji: "👀" },
+                { name: "Сделать короче", emoji: "✂️" },
+                { name: "Развить мысль", emoji: "💡" },
+                { name: "Исправить ошибки", emoji: "✏️" },
+                { name: "Формальный тон", emoji: "📋" },
+                { name: "Неформальный тон", emoji: "😊" },
+                { name: "Упростить язык", emoji: "🔤" },
+            ],
+        },
+        {
+            category: "Генерация",
+            options: [
+                { name: "Пересказать", emoji: "🔄" },
+                { name: "Придумать заголовок", emoji: "🏷️" },
+                { name: "Найти задачи", emoji: "✅" },
+                { name: "Продолжить писать", emoji: "➡️" },
+                { name: "Создать список", emoji: "📜" },
+                { name: "Написать введение", emoji: "📖" },
+                { name: "Написать заключение", emoji: "🏁" },
+            ],
+        },
+        {
+            category: "Анализ и формат",
+            options: [
+                { name: "Извлечь ключевые слова", emoji: "🔍" },
+                { name: "Определить тональность", emoji: "🎵" },
+                { name: "Форматировать как Email", emoji: "📧" },
+                { name: "Форматировать как Отчет", emoji: "📄" },
+                { name: "Добавить Эмодзи", emoji: "😍" },
+            ],
+        },
+        {
+            category: "Перевод",
+            options: [
+                { name: "Перевести на Английский", emoji: "🌍" },
+                { name: "Перевести на Немецкий", emoji: "🇩🇪" },
+                { name: "Перевести на Французский", emoji: "🇫🇷" },
+                { name: "Определить язык", emoji: "❓" },
+            ],
+        },
+        {
+            category: "Другое",
+            options: [
+                { name: "Объяснить это", emoji: "ℹ️" },
+                { name: "Превратить в стих", emoji: "📝" },
+                { name: "Сделать твит", emoji: "🐦" },
+                { name: "Связанный факт", emoji: "🔗" },
+            ],
+        },
     ];
 
     const handleSelectionChange = () => {
@@ -446,6 +519,35 @@ const App = () => {
             });
     };
 
+    const iconMap = {
+        EyeOutlined,
+        ScissorOutlined,
+        BulbOutlined,
+        EditOutlined,
+        SolutionOutlined,
+        SmileOutlined,
+        FontSizeOutlined,
+        RetweetOutlined,
+        TagOutlined,
+        CheckSquareOutlined,
+        ForwardOutlined,
+        UnorderedListOutlined,
+        BookOutlined,
+        FileDoneOutlined,
+        SearchOutlined,
+        SoundOutlined,
+        MailOutlined,
+        FileTextOutlined,
+        HeartOutlined,
+        GlobalOutlined,
+        TranslationOutlined,
+        QuestionCircleOutlined,
+        InfoCircleOutlined,
+        ReadOutlined,
+        TwitterOutlined,
+        LinkOutlined,
+    };
+
     const processingContent = (
         <div className={`processing-menu ${showPreview ? 'wide-preview' : ''}`}>
             {showPreview ? (
@@ -477,18 +579,19 @@ const App = () => {
                 </div>
             ) : (
                 <div className="options-container">
-                    { processingOptions.map((section, index) => (
+                    {processingOptions.map((section, index) => (
                         <div key={index}>
                             <div className="processing-category">{section.category}</div>
                             <div className="processing-options">
-                                {section.options.map(option => (
+                                {section.options.map((option) => (
                                     <Button
-                                        key={option}
+                                        key={option.name}
                                         className="processing-option"
                                         type="text"
-                                        onClick={() => handleProcessText(option)}
+                                        icon={<span className="emoji">{option.emoji}</span>}
+                                        onClick={() => handleProcessText(option.name)}
                                     >
-                                        {option}
+                                        {option.name}
                                     </Button>
                                 ))}
                             </div>
@@ -805,7 +908,12 @@ const App = () => {
 
     return (
         <Layout style={{ minHeight: '100vh' }}>
-            <Sider width={250} className="app-sider" collapsible collapsed={collapsed} onCollapse={value => setCollapsed(value)} lightTriggerColor={'#333131'} >
+            <Sider
+                width={280}
+                className="app-sider"
+                collapsible
+                collapsed={collapsed}
+                onCollapse={value => setCollapsed(value)} lightTriggerColor={'#333131'} >
                 <div className="logo">Рефлексия AI</div>
                 <Menu
                     theme={document.body.classList.contains('dark-theme') ? 'dark' : 'light'}

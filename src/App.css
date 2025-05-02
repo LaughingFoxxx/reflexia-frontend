@@ -32,10 +32,10 @@ body.dark-theme::before {
 }
 
 .ant-layout-sider {
-    width: 280px !important;
-    max-width: 280px !important;
-    min-width: 280px !important;
-    flex: 0 0 280px !important;
+    /*width: 280px !important;*/
+    /*max-width: 280px !important;*/
+    /*min-width: 280px !important;*/
+    /*flex: 0 0 280px !important;*/
     background: #fff !important;
     box-shadow: 2px 0 8px rgba(0, 0, 0, 0.05);
 }
@@ -67,6 +67,7 @@ body.dark-theme .ant-layout:not(.ant-layout-sider) {
     color: #1890ff;
     font-weight: bold;
     padding: 0 24px;
+    transition: 0.2s ease-out !important;
 }
 
 body.dark-theme .logo {
@@ -115,6 +116,15 @@ body.dark-theme .ant-menu-item:hover {
     transition: none !important;
 }
 
+.ant-layout-sider-collapsed .ant-menu {
+    padding: 0 6px !important;
+}
+
+.ant-layout-sider-collapsed .logo {
+    font-size: 10px;
+    transition: 0.2s ease-out !important;
+}
+
 body.dark-theme .ant-menu-item-selected,
 body.dark-theme .ant-menu-item-selected .anticon,
 body.dark-theme .ant-menu-item-selected:hover,
@@ -151,7 +161,7 @@ body.dark-theme .ant-menu-item-selected:hover .anticon {
 
 .ant-menu-item:not(.ant-menu-item-selected):hover {
     color: #000 !important;
-    background: transparent !important;
+    background: #f1f1f1 !important;
     transition-duration: 0.2s !important;
 }
 
@@ -161,8 +171,8 @@ body.dark-theme .ant-menu-item:not(.ant-menu-item-selected):hover {
 }
 
 .ant-layout-sider-trigger {
-    width: 280px !important;
-    background-color: #99ceff !important;
+    /*width: 280px !important;*/
+    background-color: #2996ff !important;
 }
 
 body.dark-theme .ant-layout-sider-trigger {
@@ -180,8 +190,7 @@ body.dark-theme .ant-layout-sider-trigger {
 }
 
 .editor-header {
-    width: 100%;
-    max-width: 800px;
+    width: 1200px;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -207,44 +216,46 @@ body.dark-theme .ant-layout-sider-trigger {
 .editor-header .back-button,
 .editor-header .save-button {
     font-size: 18px;
-    height: 40px;
+    height: 40px !important;
     padding: 0 16px;
     margin: 0;
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 140px;
+    width: 145px;
     z-index: 1;
 }
 
 .back-button {
+    background: #e1e1e1;
     font-size: 18px;
-    background: #dfdede;
     height: 40px;
+    width: 120px;
     padding: 0 16px;
     z-index: 1;
 }
 
 body.dark-theme .back-button {
-    background: rgba(80, 80, 80, 0.7) !important;
-    backdrop-filter: blur(10px);
-    color: #e0e0e0 !important;
+    backdrop-filter: blur(30px);
+    background: rgba(223, 222, 222, 0.33);
+    color: #ffffff;
 }
 
 body.dark-theme .back-button:hover {
-    background: rgba(100, 100, 100, 0.7) !important;
+    background: rgba(170, 170, 170, 0.7) !important;
+    color: #ffffff !important;
 }
 
 .save-button {
     font-size: 18px;
     height: 40px;
+    width: 120px;
     padding: 0 16px;
     z-index: 1;
 }
 
 body.dark-theme .save-button {
     background: rgba(64, 196, 255, 0.7) !important;
-    backdrop-filter: blur(10px);
     color: #ffffff !important;
 }
 
@@ -297,7 +308,7 @@ body.dark-theme .document-title-input:focus {
 
 .editor-wrapper {
     position: relative;
-    width: 1000px;
+    width: 1200px;
     height: calc(100% - 60px);
     flex-shrink: 0;
 }
@@ -985,7 +996,9 @@ body.dark-theme .upload-btn {
 }
 
 body.dark-theme .upload-btn:hover {
-    background: rgba(100, 100, 100, 0.7);
+    background: rgba(112, 112, 112, 0.7) !important;
+    border-color: rgba(255, 255, 255, 0.2) !important;
+    color: #e0e0e0 !important;
 }
 
 .quill-better-table {
@@ -1151,10 +1164,13 @@ body.dark-theme .ql-toolbar .ql-table.ql-active {
     }
 }
 
-@media (max-width: 1500px) {
+@media (max-width: 1800px) {
     .editor-wrapper {
         width: 85%;
         max-width: calc(100vw - 112px);
+    }
+    .editor-header {
+        width: 85%;
     }
 }
 
@@ -1201,10 +1217,10 @@ body.dark-theme .ql-toolbar .ql-table.ql-active {
     }
 }
 
-@media (max-width: 1500px) {
+@media (max-width: 3000px) {
     .processing-menu.wide-preview {
         width: 25vw;
-        max-width: calc(100vw - 112px);
+        max-width: calc(30vw - 112px);
     }
 }
 
