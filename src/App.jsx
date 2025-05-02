@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Layout, Menu, Button, Card, Space, Popover, Spin, message, Modal, Upload } from 'antd';
+import { Layout, Menu, Button, Card, Space, Spin, message, Modal, Upload } from 'antd';
 import {
     FileTextOutlined,
     UserOutlined,
@@ -12,32 +12,7 @@ import {
     LogoutOutlined,
     CopyOutlined,
     UploadOutlined,
-    ExportOutlined,
-    EyeOutlined,
-    ScissorOutlined,
-    BulbOutlined,
-    EditOutlined,
-    SolutionOutlined,
-    SmileOutlined,
-    FontSizeOutlined,
-    RetweetOutlined,
-    TagOutlined,
-    CheckSquareOutlined,
-    ForwardOutlined,
-    UnorderedListOutlined,
-    BookOutlined,
-    FileDoneOutlined,
-    SearchOutlined,
-    SoundOutlined,
-    MailOutlined,
-    HeartOutlined,
-    GlobalOutlined,
-    TranslationOutlined,
-    QuestionCircleOutlined,
-    InfoCircleOutlined,
-    ReadOutlined,
-    TwitterOutlined,
-    LinkOutlined
+    ExportOutlined
 } from '@ant-design/icons';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
@@ -58,11 +33,11 @@ const App = () => {
     const [selectedMenu, setSelectedMenu] = useState('documents');
     const [currentDoc, setCurrentDoc] = useState(null);
     const [editorContent, setEditorContent] = useState('');
-    const [originalContent, setOriginalContent] = useState(''); // Track original content for change detection
+    const [originalContent, setOriginalContent] = useState('');
     const [selection, setSelection] = useState(null);
     const [processedText, setProcessedText] = useState('');
     const [isProcessing, setIsProcessing] = useState(false);
-    const [showPreview, setShowPreview] = useState(false);
+    const [aiPrompt, setAiPrompt] = useState('');
     const [isMobile, setIsMobile] = useState(window.innerWidth <= 1100);
     const [documents, setDocuments] = useState([]);
     const [isLoadingDocuments, setIsLoadingDocuments] = useState(false);
@@ -70,6 +45,10 @@ const App = () => {
     const [isDocumentsFetched, setIsDocumentsFetched] = useState(false);
     const isFetchingRef = useRef(false);
     const quillRef = useRef(null);
+    const inputRef = useRef(null);
+    const previewRef = useRef(null);
+    const submitButtonRef = useRef(null);
+    const backButtonRef = useRef(null);
     const [documentToDelete, setDocumentToDelete] = useState(null);
     const navigate = useNavigate();
     const [collapsed, setCollapsed] = useState(false);
@@ -91,6 +70,46 @@ const App = () => {
         document.documentElement.style.setProperty('--editor-font-family', initialFontFamily);
     }, []);
 
+    // Глобальный обработчик кликов для сброса имитации выделения
+    useEffect(() => {
+        const handleGlobalClick = (event) => {
+            if (
+                quillRef.current &&
+                inputRef.current &&
+                previewRef.current &&
+                submitButtonRef.current &&
+                backButtonRef.current &&
+                !inputRef.current.contains(event.target) &&
+                !submitButtonRef.current.contains(event.target) &&
+                !backButtonRef.current.contains(event.target)
+            ) {
+                clearBackgroundFormatting();
+            }
+        };
+
+        document.addEventListener('click', handleGlobalClick);
+        return () => document.removeEventListener('click', handleGlobalClick);
+    }, [selection]);
+
+    // Функция для очистки фонового форматирования
+    // Функция для очистки фонового форматирования
+    const clearBackgroundFormatting = () => {
+        if (quillRef.current) {
+            const quill = quillRef.current.getEditor();
+            const length = quill.getLength();
+            // Очищаем только фоновое форматирование, сохраняя остальные стили
+            quill.formatText(0, length, { background: false }, 'user');
+            // Получаем очищенное содержимое как HTML
+            const cleanHtml = quill.root.innerHTML;
+            setEditorContent(cleanHtml);
+            setSelection(null);
+            setAiPrompt('');
+            setProcessedText('');
+            return cleanHtml;
+        }
+        return editorContent; // Возвращаем текущее содержимое, если quill недоступен
+    };
+
     // Функция выхода из аккаунта
     const handleLogout = async () => {
         try {
@@ -100,7 +119,7 @@ const App = () => {
             });
 
             if (response.ok) {
-                message.success('Вы успешно вышли из аккаунта');
+                message.success;
                 navigate('/login');
             } else {
                 throw new Error('Failed to logout');
@@ -309,7 +328,7 @@ const App = () => {
         const updatedAtDate = new Date(doc.updatedAt);
         const formattedDate = isNaN(updatedAtDate) ? 'Unknown Date' : updatedAtDate.toISOString().split('T')[0];
         const cleanText = stripHtml(doc.text || '');
-        const previewText = cleanText.substring(0, 100) + (cleanText.length > 100 ? '...' : '') || `Начните печатать...'}...`;
+        const previewText = cleanText.substring(0, 100) + (cleanText.length > 100 ? '...' : '') || `Начните печатать...`;
 
         const formattedDoc = {
             id: doc.documentId,
@@ -334,116 +353,55 @@ const App = () => {
         { key: 'settings', icon: <SettingOutlined />, label: 'Настройки' },
     ];
 
-    const processingOptions = [
-        {
-            category: "Улучшение текста",
-            options: [
-                { name: "Повысить ясность", emoji: "👀" },
-                { name: "Сделать короче", emoji: "✂️" },
-                { name: "Развить мысль", emoji: "💡" },
-                { name: "Исправить ошибки", emoji: "✏️" },
-                { name: "Формальный тон", emoji: "📋" },
-                { name: "Неформальный тон", emoji: "😊" },
-                { name: "Упростить язык", emoji: "🔤" },
-            ],
-        },
-        {
-            category: "Генерация",
-            options: [
-                { name: "Пересказать", emoji: "🔄" },
-                { name: "Придумать заголовок", emoji: "🏷️" },
-                { name: "Найти задачи", emoji: "✅" },
-                { name: "Продолжить писать", emoji: "➡️" },
-                { name: "Создать список", emoji: "📜" },
-                { name: "Написать введение", emoji: "📖" },
-                { name: "Написать заключение", emoji: "🏁" },
-            ],
-        },
-        {
-            category: "Анализ и формат",
-            options: [
-                { name: "Извлечь ключевые слова", emoji: "🔍" },
-                { name: "Определить тональность", emoji: "🎵" },
-                { name: "Форматировать как Email", emoji: "📧" },
-                { name: "Форматировать как Отчет", emoji: "📄" },
-                { name: "Добавить Эмодзи", emoji: "😍" },
-            ],
-        },
-        {
-            category: "Перевод",
-            options: [
-                { name: "Перевести на Английский", emoji: "🌍" },
-                { name: "Перевести на Немецкий", emoji: "🇩🇪" },
-                { name: "Перевести на Французский", emoji: "🇫🇷" },
-                { name: "Определить язык", emoji: "❓" },
-            ],
-        },
-        {
-            category: "Другое",
-            options: [
-                { name: "Объяснить это", emoji: "ℹ️" },
-                { name: "Превратить в стих", emoji: "📝" },
-                { name: "Сделать твит", emoji: "🐦" },
-                { name: "Связанный факт", emoji: "🔗" },
-            ],
-        },
-    ];
-
     const handleSelectionChange = () => {
         if (quillRef.current) {
             const quill = quillRef.current.getEditor();
             const range = quill.getSelection();
             if (range && range.length > 0) {
+                // Если есть предыдущее выделение, убираем его фон
+                if (selection) {
+                    quill.formatText(selection.range.index, selection.range.length, {
+                        background: false,
+                    });
+                }
                 const text = quill.getText(range.index, range.length);
                 setSelection({ text, range });
-                setShowPreview(false);
-            } else {
-                setSelection(null);
+            } else if (selection && document.activeElement !== inputRef.current) {
+                clearBackgroundFormatting();
             }
         }
     };
 
-    const handleProcessText = async (option) => {
-        if (!selection || !selection.text) return;
+    const handleInputClick = () => {
+        if (quillRef.current && selection) {
+            const quill = quillRef.current.getEditor();
+            // Применяем имитацию выделения через форматирование фона
+            quill.formatText(selection.range.index, selection.range.length, {
+                background: document.body.classList.contains('dark-theme') ? '#508ec1' : '#fff9a8',
+            });
+            // Убедимся, что фокус остается на input
+            inputRef.current.focus();
+        }
+    };
+
+    const handleKeyDown = (event) => {
+        if (quillRef.current && selection && (event.ctrlKey || event.metaKey) && event.key === 'z') {
+            clearBackgroundFormatting();
+        }
+    };
+
+    const handleProcessText = async () => {
+        if (!selection || !selection.text || !aiPrompt.trim()) {
+            message.error('Выделите текст и введите запрос для обработки');
+            return;
+        }
 
         setIsProcessing(true);
         setProcessedText('');
 
-        const prompts = {
-            "Повысить ясность": "Перепиши этот текст, чтобы он стал более ясным и понятным, сохранив исходный смысл.",
-            "Сделать короче": "Сократи этот текст, сохранив основную идею.",
-            "Развить мысль": "Разверни эту мысль, добавив больше деталей и примеров.",
-            "Исправить ошибки": "Исправь грамматические, орфографические и пунктуационные ошибки в этом тексте.",
-            "Формальный тон": "Перепиши текст в формальном стиле, подходящем для официальных документов.",
-            "Неформальный тон": "Перепиши текст в неформальном, разговорном стиле.",
-            "Упростить язык": "Упростить язык текста, сделав его доступным для широкой аудитории.",
-            "Пересказать": "Составь краткое содержание этого текста.",
-            "Придумать заголовок": "Предложи подходящий заголовок для этого текста.",
-            "Найти задачи": "Выдели из текста список задач или действий.",
-            "Продолжить писать": "Продолжи этот текст, развивая его логично и естественно.",
-            "Создать список": "Преобразуй текст в структурированный список.",
-            "Написать введение": "Напиши введение для этого текста.",
-            "Написать заключение": "Напиши заключение для этого текста.",
-            "Извлечь ключевые слова": "Выдели ключевые слова или фразы из этого текста.",
-            "Определить тональность": "Определи эмоциональную тональность текста (позитивная, негативная, нейтральная) и объясни почему.",
-            "Форматировать как Email": "Преобразуй текст в формат электронного письма.",
-            "Форматировать как Отчет": "Преобразуй текст в формат официального отчета.",
-            "Добавить Эмодзи": "Добавь подходящие эмодзи к тексту, не меняя его содержания.",
-            "Перевести на Английский": "Переведи этот текст на английский язык.",
-            "Перевести на Немецкий": "Переведи этот текст на немецкий язык.",
-            "Перевести на Французский": "Переведи этот текст на французский язык.",
-            "Определить язык": "Определи, на каком языке написан этот текст.",
-            "Объяснить это": "Объясни содержание этого текста простыми словами.",
-            "Превратить в стих": "Перепиши этот текст в виде стихотворения.",
-            "Сделать твит": "Преобразуй текст в сообщение длиной до 280 символов, подходящее для твита.",
-            "Связанный факт": "Найди интересный факт, связанный с содержанием этого текста.",
-        };
-
-        const instruction = prompts[option] || "Обработай этот текст в соответствии с выбранной опцией.";
-
         try {
             const payload = {
-                instruction: instruction,
+                instruction: aiPrompt,
                 text: selection.text,
             };
 
@@ -487,12 +445,9 @@ const App = () => {
                 const data = await response.json();
                 setProcessedText(data.result || 'Ошибка: пустой результат');
             }
-
-            setShowPreview(true);
         } catch (error) {
             console.error('Failed to process text:', error);
             setProcessedText(`Ошибка обработки: ${error.message}`);
-            setShowPreview(true);
         } finally {
             setIsProcessing(false);
         }
@@ -501,9 +456,14 @@ const App = () => {
     const handleReplaceText = () => {
         if (quillRef.current && selection) {
             const quill = quillRef.current.getEditor();
+            // Удаляем имитацию выделения перед заменой
+            quill.formatText(selection.range.index, selection.range.length, {
+                background: false,
+            });
             quill.deleteText(selection.range.index, selection.range.length);
             quill.insertText(selection.range.index, processedText);
-            setShowPreview(false);
+            setProcessedText('');
+            setAiPrompt('');
             setSelection(null);
         }
     };
@@ -519,88 +479,11 @@ const App = () => {
             });
     };
 
-    const iconMap = {
-        EyeOutlined,
-        ScissorOutlined,
-        BulbOutlined,
-        EditOutlined,
-        SolutionOutlined,
-        SmileOutlined,
-        FontSizeOutlined,
-        RetweetOutlined,
-        TagOutlined,
-        CheckSquareOutlined,
-        ForwardOutlined,
-        UnorderedListOutlined,
-        BookOutlined,
-        FileDoneOutlined,
-        SearchOutlined,
-        SoundOutlined,
-        MailOutlined,
-        FileTextOutlined,
-        HeartOutlined,
-        GlobalOutlined,
-        TranslationOutlined,
-        QuestionCircleOutlined,
-        InfoCircleOutlined,
-        ReadOutlined,
-        TwitterOutlined,
-        LinkOutlined,
+    const handleCancelPreview = () => {
+        setProcessedText('');
+        setAiPrompt('');
+        // Не сбрасываем selection, чтобы сохранить имитацию выделения
     };
-
-    const processingContent = (
-        <div className={`processing-menu ${showPreview ? 'wide-preview' : ''}`}>
-            {showPreview ? (
-                <div className="preview-container">
-                    <div className="preview-text">
-                        <div
-                            dangerouslySetInnerHTML={{
-                                __html: processedText
-                                    .replace(/\n/g, '<br/>')
-                                    .replace(/\r\n/g, '<br/>')
-                            }}
-                        />
-                    </div>
-                    <div className="preview-buttons">
-                        <Button onClick={() => setShowPreview(false)} style={{ marginRight: 8 }}>
-                            Назад
-                        </Button>
-                        <Button onClick={handleCopyText} icon={<CopyOutlined />} style={{ marginRight: 8 }}>
-                            Скопировать
-                        </Button>
-                        <Button type="primary" onClick={handleReplaceText}>
-                            Заменить
-                        </Button>
-                    </div>
-                </div>
-            ) : isProcessing ? (
-                <div className="spinner-container">
-                    <Spin indicator={<LoadingOutlined spin/>} size="large"/>
-                </div>
-            ) : (
-                <div className="options-container">
-                    {processingOptions.map((section, index) => (
-                        <div key={index}>
-                            <div className="processing-category">{section.category}</div>
-                            <div className="processing-options">
-                                {section.options.map((option) => (
-                                    <Button
-                                        key={option.name}
-                                        className="processing-option"
-                                        type="text"
-                                        icon={<span className="emoji">{option.emoji}</span>}
-                                        onClick={() => handleProcessText(option.name)}
-                                    >
-                                        {option.name}
-                                    </Button>
-                                ))}
-                            </div>
-                        </div>
-                    ))}
-                </div>
-            )}
-        </div>
-    );
 
     const handleCreateDocument = async () => {
         const newDocId = `new_${Date.now()}`;
@@ -698,13 +581,16 @@ const App = () => {
     const handleSave = async () => {
         if (!currentDoc) return;
 
-        // message.info('Сохранение...');
-        // setIsLoadingDocuments(true);
+        // Очищаем форматирование и обновляем editorContent
+        let cleanContent = editorContent;
+        if (quillRef.current) {
+            cleanContent = clearBackgroundFormatting();
+        }
 
         const payload = {
             documentId: currentDoc.id,
             documentName: currentDoc.title,
-            text: editorContent,
+            text: cleanContent,
         };
 
         const saveDocument = async (isRetryAfterRefresh = false) => {
@@ -746,11 +632,11 @@ const App = () => {
                     console.log('No JSON response from server, using local data');
                 }
 
-                const cleanText = stripHtml(updatedDocFromServer?.text || editorContent);
+                const cleanText = stripHtml(updatedDocFromServer?.text || cleanContent);
                 const updatedDoc = {
                     ...currentDoc,
                     title: updatedDocFromServer?.documentName || currentDoc.title,
-                    content: updatedDocFromServer?.text || editorContent,
+                    content: updatedDocFromServer?.text || cleanContent,
                     date: new Date(updatedDocFromServer?.updatedAt || Date.now()).toISOString().split('T')[0],
                     preview: cleanText.substring(0, 100) + (cleanText.length > 100 ? '...' : ''),
                     updatedAt: updatedDocFromServer?.updatedAt || currentDoc.updatedAt || new Date().toISOString(),
@@ -758,7 +644,7 @@ const App = () => {
                 };
 
                 setCurrentDoc(updatedDoc);
-                setOriginalContent(editorContent);
+                setOriginalContent(cleanContent);
                 setDocuments(prevDocs =>
                     prevDocs.map(doc =>
                         doc.id === updatedDoc.id ? updatedDoc : doc
@@ -778,9 +664,18 @@ const App = () => {
     };
 
     const handleBack = async () => {
-        if (editorContent !== originalContent || currentDoc?.title !== currentDoc?.title) {
+        // Очищаем форматирование и обновляем editorContent
+        let cleanContent = editorContent;
+        if (quillRef.current) {
+            cleanContent = clearBackgroundFormatting();
+        }
+
+        // Проверяем, нужно ли сохранять документ
+        if (cleanContent !== originalContent || currentDoc?.title !== currentDoc?.title) {
             await handleSave();
         }
+
+        // Сбрасываем текущий документ и редактор
         setCurrentDoc(null);
         setEditorContent('');
         setOriginalContent('');
@@ -825,24 +720,68 @@ const App = () => {
                 </Button>
             </div>
             <div className="editor-wrapper">
-                <Popover
-                    content={processingContent}
-                    trigger="click"
-                    open={selection !== null}
-                    placement={isMobile ? 'bottom' : 'leftTop'}
-                    overlayClassName="processing-popover"
-                >
-                    <ReactQuill
-                        ref={quillRef}
-                        theme="snow"
-                        value={editorContent}
-                        onChange={setEditorContent}
-                        onChangeSelection={handleSelectionChange}
-                        className="custom-quill"
-                        modules={modules}
-                        formats={formats}
+                <ReactQuill
+                    ref={quillRef}
+                    theme="snow"
+                    value={editorContent}
+                    onChange={setEditorContent}
+                    onChangeSelection={handleSelectionChange}
+                    onKeyDown={handleKeyDown}
+                    className="custom-quill"
+                    modules={modules}
+                    formats={formats}
+                />
+                {(isProcessing || processedText) && (
+                    <div className="ai-preview-container" ref={previewRef}>
+                        {isProcessing ? (
+                            <div className="spinner-container">
+                                <Spin indicator={<LoadingOutlined spin />} size="large" />
+                            </div>
+                        ) : (
+                            <div className="preview-content">
+                                <div
+                                    className="preview-text"
+                                    dangerouslySetInnerHTML={{
+                                        __html: processedText
+                                            .replace(/\n/g, '<br/>')
+                                            .replace(/\r\n/g, '<br/>')
+                                    }}
+                                />
+                                <div className="preview-buttons">
+                                    <Button ref={backButtonRef} onClick={handleCancelPreview}>Назад</Button>
+                                    <Button onClick={handleCopyText} icon={<CopyOutlined />}>Скопировать</Button>
+                                    <Button type="primary" onClick={handleReplaceText}>Заменить</Button>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                )}
+                <div className="ai-input-container">
+                    <input
+                        ref={inputRef}
+                        type="text"
+                        value={aiPrompt}
+                        onChange={(e) => setAiPrompt(e.target.value)}
+                        onClick={handleInputClick}
+                        onKeyPress={(e) => {
+                            if (e.key === 'Enter' && !isProcessing) {
+                                handleProcessText();
+                            }
+                        }}
+                        placeholder={selection ? "Введите запрос для ИИ..." : "Выделите текст для активации"}
+                        className="ai-input"
+                        disabled={!selection}
                     />
-                </Popover>
+                    <Button
+                        ref={submitButtonRef}
+                        type="primary"
+                        onClick={handleProcessText}
+                        disabled={!selection || !aiPrompt.trim() || isProcessing}
+                        className="ai-submit-button"
+                    >
+                        Отправить
+                    </Button>
+                </div>
             </div>
         </div>
     );
@@ -913,7 +852,9 @@ const App = () => {
                 className="app-sider"
                 collapsible
                 collapsed={collapsed}
-                onCollapse={value => setCollapsed(value)} lightTriggerColor={'#333131'} >
+                onCollapse={value => setCollapsed(value)}
+                lightTriggerColor={'#333131'}
+            >
                 <div className="logo">Рефлексия AI</div>
                 <Menu
                     theme={document.body.classList.contains('dark-theme') ? 'dark' : 'light'}
@@ -927,7 +868,6 @@ const App = () => {
                             setSelectedMenu(e.key);
                             setCurrentDoc(null);
                             setSelection(null);
-                            setShowPreview(false);
                         }
                     }}
                     style={{ borderRight: 0, fontSize: '16px' }}
