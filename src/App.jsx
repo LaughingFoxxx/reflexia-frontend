@@ -5,14 +5,13 @@ import {
     UserOutlined,
     SettingOutlined,
     PlusOutlined,
-    ArrowLeftOutlined,
-    SaveOutlined,
+    CloseOutlined,
     LoadingOutlined,
     DeleteOutlined,
     LogoutOutlined,
     CopyOutlined,
     UploadOutlined,
-    ExportOutlined, DownOutlined
+    ExportOutlined, DownOutlined, EllipsisOutlined
 } from '@ant-design/icons';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
@@ -48,7 +47,7 @@ const App = () => {
     const inputRef = useRef(null);
     const previewRef = useRef(null);
     const submitButtonRef = useRef(null);
-    const backButtonRef = useRef(null);
+    const closeButtonRef = useRef(null);
     const [documentToDelete, setDocumentToDelete] = useState(null);
     const navigate = useNavigate();
     const [collapsed, setCollapsed] = useState(false);
@@ -78,20 +77,19 @@ const App = () => {
                 inputRef.current &&
                 previewRef.current &&
                 submitButtonRef.current &&
-                backButtonRef.current &&
+                closeButtonRef.current &&
                 !inputRef.current.contains(event.target) &&
                 !submitButtonRef.current.contains(event.target) &&
-                !backButtonRef.current.contains(event.target)
+                !closeButtonRef.current.contains(event.target)
             ) {
                 clearBackgroundFormatting();
             }
         };
 
         document.addEventListener('click', handleGlobalClick);
-        return () => document.removeEventListener('click', handleGlobalClick);
+        return () => document.addEventListener('click', handleGlobalClick);
     }, [selection]);
 
-    // Функция для очистки фонового форматирования
     // Функция для очистки фонового форматирования
     const clearBackgroundFormatting = () => {
         if (quillRef.current) {
@@ -119,7 +117,7 @@ const App = () => {
             });
 
             if (response.ok) {
-                message.success;
+                message.success('Выход выполнен');
                 navigate('/login');
             } else {
                 throw new Error('Failed to logout');
@@ -578,6 +576,24 @@ const App = () => {
         setSelection(null);
     };
 
+    const handleClose = async () => {
+        // Очищаем форматирование и обновляем editorContent
+        let cleanContent = editorContent;
+        if (quillRef.current) {
+            cleanContent = clearBackgroundFormatting();
+        }
+
+        // Проверяем, нужно ли сохранять документ
+        if (cleanContent !== originalContent || currentDoc?.title !== currentDoc?.title) {
+            await handleSave();
+        }
+
+        // Сбрасываем текущий документ и редактор
+        setCurrentDoc(null);
+        setEditorContent('');
+        setOriginalContent('');
+    };
+
     const handleSave = async () => {
         if (!currentDoc) return;
 
@@ -663,34 +679,8 @@ const App = () => {
         await saveDocument();
     };
 
-    const handleBack = async () => {
-        // Очищаем форматирование и обновляем editorContent
-        let cleanContent = editorContent;
-        if (quillRef.current) {
-            cleanContent = clearBackgroundFormatting();
-        }
-
-        // Проверяем, нужно ли сохранять документ
-        if (cleanContent !== originalContent || currentDoc?.title !== currentDoc?.title) {
-            await handleSave();
-        }
-
-        // Сбрасываем текущий документ и редактор
-        setCurrentDoc(null);
-        setEditorContent('');
-        setOriginalContent('');
-    };
-
     const modules = {
-        toolbar: [
-            [{ 'header': [1, 2, 3, false] }],
-            ['bold', 'italic', 'underline', 'strike'],
-            [{ 'align': '' }, { 'align': 'center' }, { 'align': 'right' }, { 'align': 'justify' }],
-            [{ 'color': [] }, { 'background': [] }],
-            ['link', 'image'],
-            [{ 'list': 'ordered' }, { 'list': 'bullet' }],
-            ['clean']
-        ],
+        toolbar: '#toolbar' // Reference to external toolbar container
     };
 
     const formats = [
@@ -783,7 +773,6 @@ const App = () => {
     const renderEditor = () => (
         <div className="editor-container">
             <div className="editor-header">
-                <Button icon={<ArrowLeftOutlined />} onClick={handleBack} type="text" className="back-button">Назад</Button>
                 <div className="title-wrapper">
                     <input
                         type="text"
@@ -793,9 +782,46 @@ const App = () => {
                         placeholder="Название документа"
                     />
                 </div>
-                <Button icon={<SaveOutlined />} onClick={handleSave} type="primary" className="save-button" disabled={!currentDoc || isLoadingDocuments}>
-                    Сохранить
-                </Button>
+                <div id="toolbar" className="ql-toolbar ql-snow">
+                    <span className="ql-formats">
+                        <select className="ql-header">
+                            <option value="1"></option>
+                            <option value="2"></option>
+                            <option value="3"></option>
+                            <option selected></option>
+                        </select>
+                    </span>
+                    <span className="ql-formats">
+                        <button className="ql-bold"></button>
+                        <button className="ql-italic"></button>
+                        <button className="ql-underline"></button>
+                        <button className="ql-strike"></button>
+                    </span>
+                    <span className="ql-formats">
+                        <button className="ql-align" value=""></button>
+                        <button className="ql-align" value="center"></button>
+                        <button className="ql-align" value="right"></button>
+                        <button className="ql-align" value="justify"></button>
+                    </span>
+                    <span className="ql-formats">
+                        <button className="ql-link"></button>
+                        <button className="ql-image"></button>
+                    </span>
+                    <span className="ql-formats">
+                        <button className="ql-list" value="ordered"></button>
+                        <button className="ql-list" value="bullet"></button>
+                    </span>
+                    <span className="ql-formats">
+                        <button className="ql-clean"></button>
+                    </span>
+                </div>
+                <Button
+                    icon={<CloseOutlined />}
+                    onClick={handleClose}
+                    type="text"
+                    className="close-button"
+                    ref={closeButtonRef}
+                />
             </div>
             <div className="editor-wrapper">
                 <ReactQuill
@@ -826,7 +852,7 @@ const App = () => {
                                     }}
                                 />
                                 <div className="preview-buttons">
-                                    <Button ref={backButtonRef} onClick={handleCancelPreview}>Назад</Button>
+                                    <Button onClick={handleCancelPreview}>Назад</Button>
                                     <Button onClick={handleCopyText} icon={<CopyOutlined />}>Скопировать</Button>
                                     <Button type="primary" onClick={handleReplaceText}>Заменить</Button>
                                 </div>
@@ -836,7 +862,7 @@ const App = () => {
                 )}
                 <div className="ai-input-container">
                     <Dropdown overlay={aiOptionsMenu}>
-                        <Button className="ai-options-button" icon={<DownOutlined />}/>
+                        <Button className="ai-options-button" icon={<EllipsisOutlined />}/>
                     </Dropdown>
                     <input
                         ref={inputRef}
@@ -872,7 +898,7 @@ const App = () => {
         if (fetchError) return <div className="centered-error">Error loading documents: {fetchError} <Button onClick={() => fetchDocuments()}>Retry</Button></div>;
 
         return (
-            <>
+            <div className="documents-container">
                 <div style={{ display: 'flex', gap: '12px' }}>
                     <Button type="primary" icon={<PlusOutlined />} onClick={handleCreateDocument} className="create-doc-btn">
                         Создать документ
@@ -912,7 +938,7 @@ const App = () => {
                         ))}
                     </div>
                 )}
-            </>
+            </div>
         );
     };
 
@@ -955,7 +981,7 @@ const App = () => {
                 />
             </Sider>
             <Layout>
-                <Content style={{ padding: '24px', margin: 0, minHeight: 280 }}>
+                <Content style={{ padding: '0 24px 24px', margin: 0, minHeight: 280 }}>
                     {renderContent()}
                 </Content>
             </Layout>

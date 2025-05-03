@@ -1,12 +1,12 @@
 :root {
     --editor-font-size: 16px;
-    --editor-font-family: 'Segoe Durandus', 'Times New Roman', Times, serif;
+    --editor-font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
 }
 
 body {
     margin: 0;
     padding: 0;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe Durandus', 'Times New Roman', Times, serif;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
     transition: background-color 0.3s ease;
 }
 
@@ -34,6 +34,10 @@ body.dark-theme::before {
 .ant-layout-sider {
     background: #fff !important;
     box-shadow: 2px 0 8px rgba(0, 0, 0, 0.05);
+    position: fixed;
+    height: 100vh;
+    overflow: hidden;
+    z-index: 1001;
 }
 
 body.dark-theme .ant-layout-sider {
@@ -47,7 +51,7 @@ body.dark-theme .ant-layout:not(.ant-layout-sider) {
 }
 
 .ant-layout-content {
-    padding: 15px 24px 0 24px !important;
+    padding: 0 24px !important;
     min-height: 100vh;
     background-color: transparent;
     transition: background-color 0.3s ease;
@@ -176,70 +180,114 @@ body.dark-theme .ant-layout-sider-trigger {
     padding: 0 24px 24px;
     display: flex;
     flex-direction: column;
-    align-items: center;
-    height: 98vh;
+    height: 100vh;
     overflow: hidden;
     box-sizing: border-box;
+    margin-left: 280px;
+    transition: 0.2s ease-out;
+}
+
+.ant-layout-sider-collapsed ~ .ant-layout .editor-container {
+    margin-left: 80px;
 }
 
 .editor-header {
-    width: 1200px;
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    margin-bottom: 8px;
-    padding: 8px 0;
-    position: relative;
+    position: fixed;
+    top: 0;
+    left: 280px;
+    right: 0;
+    background: #fff;
+    z-index: 1000;
+    padding: 8px 24px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+    box-sizing: border-box;
+    max-width: calc(100vw - 280px);
+    transition: 0.2s ease-out;
+}
+
+.ant-layout-sider-collapsed ~ .ant-layout .editor-header {
+    left: 80px;
+    max-width: calc(100vw - 80px);
+}
+
+body.dark-theme .ql-formats {
+    color: #999999 !important;
+    background: rgba(225, 225, 225, 0.6);
+    backdrop-filter: blur(30px);
+    border-radius: 8px;
+}
+
+body.dark-theme .editor-header {
+    background: rgba(35, 35, 35, 0.7);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 1px 5px rgba(0, 0, 0, 0.3);
 }
 
 .title-wrapper {
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 60%;
-    display: flex;
-    justify-content: center;
+    margin-right: 16px;
 }
 
 .editor-wrapper {
-    position: relative;
-    width: 1200px;
-    height: calc(100% - 60px);
-    flex-shrink: 0;
+    margin-top: 60px;
+    width: 800px;
+    max-width: 100%;
+    flex-grow: 1;
     display: flex;
     flex-direction: column;
+    overflow-y: auto;
+    padding-bottom: 46px;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .custom-quill {
     width: 100%;
     background: #fff;
-    border-radius: 8px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.12);
-    flex-grow: 1;
+    border-radius: 20px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
     display: flex;
-    overflow: auto;
     flex-direction: column;
     font-size: var(--editor-font-size);
     font-family: var(--editor-font-family);
+    border: 1px solid #e8e8e8;
+    padding: 20px;
+    transition: 0.2s ease-out;
 }
 
 body.dark-theme .custom-quill {
-    background: rgba(35, 35, 35, 0.7) !important;
-    backdrop-filter: blur(70px);
-    box-shadow: 0 1px 5px rgba(0, 0, 0, 0.3);
+    background: rgba(140, 140, 140, 0.2) !important; /* Creamy paper color for dark theme */
+    backdrop-filter: blur(80px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    border-color: transparent;
+}
+
+body.dark-theme .ai-options-button {
+    background: linear-gradient(30deg, #af57a5, #40c4ff) !important;
+    border-color: #546eb1;
+}
+
+body.dark-theme .ant-dropdown-menu {
+    background: rgba(51, 51, 51, 0.97) !important;
+}
+
+body.dark-theme .ant-dropdown-menu-title-content {
+    color: #f3f2f2 !important;
 }
 
 .custom-quill .ql-container {
     font-size: 16px;
-    border-radius: 0 0 8px 8px;
+    border-radius: 20px;
     flex-grow: 1;
     overflow-y: auto;
+    border: none;
 }
 
 body.dark-theme .custom-quill .ql-container {
     background: transparent;
-    color: #e0e0e0;
-    border-color: rgba(255, 255, 255, 0.2);
+    color: #333;
+    border: none;
 }
 
 .custom-quill .ql-editor {
@@ -248,59 +296,90 @@ body.dark-theme .custom-quill .ql-container {
 }
 
 body.dark-theme .custom-quill .ql-editor {
-    color: #e0e0e0;
+    color: #efefef;
 }
 
 body.dark-theme .custom-quill .ql-editor [style*="background-color: rgb(255, 249, 168)"] {
-    background-color: #512666 !important; /* Темный желтый для темной темы */
+    background-color: #fff9a8 !important; /* Keep yellow highlight for paper */
 }
 
-.custom-quill .ql-toolbar {
-    border-radius: 8px 8px 0 0;
+.ql-toolbar {
+    border: none !important;
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    background: transparent !important;
+    position: relative;
+    margin-left: 175px;
 }
 
-body.dark-theme .custom-quill .ql-toolbar {
-    background: rgba(60, 60, 60, 0.7);
-    backdrop-filter: blur(10px);
-    border-color: rgba(255, 255, 255, 0.2);
+.ant-layout-sider-collapsed ~ .ant-layout .ql-toolbar {
+    margin-left: 290px;
 }
 
-body.dark-theme .custom-quill .ql-toolbar .ql-stroke {
-    stroke: #ccc;
+body.dark-theme .ql-toolbar {
+    background: transparent !important;
 }
 
-body.dark-theme .custom-quill .ql-toolbar .ql-fill {
-    fill: #ccc;
+body.dark-theme .ql-toolbar .ql-stroke {
+    stroke: #333;
 }
 
-body.dark-theme .custom-quill .ql-toolbar button:hover .ql-stroke,
-body.dark-theme .custom-quill .ql-toolbar button:hover .ql-fill,
-body.dark-theme .custom-quill .ql-toolbar button.ql-active .ql-stroke,
-body.dark-theme .custom-quill .ql-toolbar button.ql-active .ql-fill {
-    stroke: #40c4ff;
-    fill: #40c4ff;
+body.dark-theme .ql-toolbar .ql-fill {
+    fill: #333;
 }
 
-body.dark-theme .custom-quill .ql-toolbar .ql-picker-label,
-body.dark-theme .custom-quill .ql-toolbar .ql-picker-item {
-    color: #ccc;
+body.dark-theme .ql-toolbar button:hover .ql-stroke,
+body.dark-theme .ql-toolbar button:hover .ql-fill,
+body.dark-theme .ql-toolbar button.ql-active .ql-stroke,
+body.dark-theme .ql-toolbar button.ql-active .ql-fill {
+    stroke: #1890ff;
+    fill: #1890ff;
 }
 
-body.dark-theme .custom-quill .ql-toolbar .ql-picker-label:hover,
-body.dark-theme .custom-quill .ql-toolbar .ql-picker-item:hover {
-    color: #40c4ff;
+body.dark-theme .ql-toolbar .ql-picker-label,
+body.dark-theme .ql-toolbar .ql-picker-item {
+    color: #333;
 }
 
-body.dark-theme .custom-quill .ql-toolbar .ql-picker-options {
-    background: rgba(60, 60, 60, 0.9);
-    backdrop-filter: blur(10px);
-    border-color: rgba(255, 255, 255, 0.2);
+body.dark-theme .ql-toolbar .ql-picker-label:hover,
+body.dark-theme .ql-toolbar .ql-picker-item:hover {
+    color: #1890ff;
+}
+
+body.dark-theme .ql-toolbar .ql-picker-options {
+    background: #fff;
+    border-color: #e8e8e8;
 }
 
 .ai-input-container {
+    gap: 4px;
     display: flex;
     align-items: center;
-    margin-top: 8px;
+    position: fixed;
+    bottom: 24px;
+    width: 820px;
+    max-width: calc(100% - 304px);
+    background: #fff;
+    padding: 8px;
+    border-radius: 10px;
+    box-shadow: 0 -1px 3px rgba(0,0,0,0.12);
+    z-index: 1000;
+    left: 50%;
+    transform: translateX(-50%);
+    margin-left: 140px; /* Half of Sider width (280px / 2) to center in content area */
+    transition: 0.2s ease-out;
+}
+
+.ant-layout-sider-collapsed ~ .ant-layout .ai-input-container {
+    margin-left: 40px; /* Half of collapsed Sider width (80px / 2) */
+    max-width: calc(100% - 104px);
+}
+
+body.dark-theme .ai-input-container {
+    background: rgba(35, 35, 35, 0.7);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 -1px 5px rgba(0, 0, 0, 0.3);
 }
 
 .ai-input {
@@ -308,7 +387,7 @@ body.dark-theme .custom-quill .ql-toolbar .ql-picker-options {
     padding: 8px 12px;
     font-size: 14px;
     border: 1px solid #d9d9d9;
-    border-radius: 4px 0 0 4px;
+    border-radius: 15px;
     outline: none;
     background: #fff;
     color: #333;
@@ -332,7 +411,7 @@ body.dark-theme .ai-input:disabled {
 }
 
 .ai-submit-button {
-    border-radius: 0 4px 4px 0;
+    border-radius: 30px;
     height: 38px;
     margin-left: -1px;
 }
@@ -347,11 +426,11 @@ body.dark-theme .ai-submit-button:hover {
 }
 
 .ai-preview-container {
-    position: absolute;
-    bottom: 46px; /* Выравнивание над полем ввода (38px высота input + 8px margin) */
-    left: 0;
-    width: 100%;
-    max-height: 400px;
+    position: fixed;
+    bottom: 80px;
+    width: 800px;
+    max-width: calc(100% - 48px);
+    max-height: 500px;
     background: rgba(255, 255, 255, 0.95);
     border: 1px solid #d9d9d9;
     border-radius: 8px;
@@ -359,6 +438,9 @@ body.dark-theme .ai-submit-button:hover {
     z-index: 1000;
     display: flex;
     flex-direction: column;
+    left: 50%;
+    transform: translateX(-50%);
+    margin-left: 140px; /* Half of Sider width (280px / 2) to center in content area */
 }
 
 body.dark-theme .ai-preview-container {
@@ -378,7 +460,7 @@ body.dark-theme .ai-preview-container {
 .preview-text {
     flex-grow: 1;
     padding: 16px;
-    font-size: 14px;
+    font-size: 16px;
     overflow-y: auto;
     color: #333;
 }
@@ -432,14 +514,13 @@ body.dark-theme .preview-buttons .ant-btn-primary:hover {
 }
 
 .document-title-input {
-    font-size: 28px;
-    font-weight: 600;
-    text-align: center;
+    font-size: 20px;
+    font-weight: 500;
     border: none;
     border-bottom: 2px solid transparent;
     outline: none;
     padding: 0 8px 4px;
-    width: 100%;
+    width: 300px;
     transition: all 0.3s;
     background: transparent;
 }
@@ -464,54 +545,39 @@ body.dark-theme .document-title-input:focus {
     border-bottom: 2px solid #40c4ff;
 }
 
-.editor-header .back-button,
-.editor-header .save-button {
+.close-button {
     font-size: 18px;
     height: 40px !important;
-    padding: 0 16px;
-    margin: 0;
+    width: 40px !important;
+    padding: 0;
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 145px;
-    z-index: 1;
-}
-
-.back-button {
     background: #e1e1e1;
-    font-size: 18px;
-    height: 40px;
-    width: 120px;
-    padding: 0 16px;
-    z-index: 1;
+    position: absolute;
+    right: 24px;
+    top: 8px;
+    z-index: 1001;
+    border-radius: 4px;
 }
 
-body.dark-theme .back-button {
-    backdrop-filter: blur(30px);
+body.dark-theme .close-button {
     background: rgba(223, 222, 222, 0.33);
     color: #ffffff;
 }
 
-body.dark-theme .back-button:hover {
+body.dark-theme .close-button:hover {
     background: rgba(170, 170, 170, 0.7) !important;
     color: #ffffff !important;
 }
 
-.save-button {
-    font-size: 18px;
-    height: 40px;
-    width: 120px;
-    padding: 0 16px;
-    z-index: 1;
+.documents-container {
+    margin-left: 280px;
+    padding: 24px 0;
 }
 
-body.dark-theme .save-button {
-    background: rgba(64, 196, 255, 0.7) !important;
-    color: #ffffff !important;
-}
-
-body.dark-theme .save-button:hover {
-    background: rgba(64, 196, 255, 0.9) !important;
+.ant-layout-sider-collapsed ~ .ant-layout .documents-container {
+    margin-left: 80px;
 }
 
 .documents-grid {
@@ -829,16 +895,90 @@ body.dark-theme .custom-delete-modal .ant-btn-primary.ant-btn-dangerous:disabled
 }
 
 @media (max-width: 1800px) {
-    .editor-wrapper {
-        width: 85%;
-        max-width: calc(100vw - 112px);
+    .title-wrapper .document-title-input {
+        max-width: 170px !important;
+    }
+
+    .ql-toolbar {
+        margin-left: 250px;
+    }
+
+    .ant-layout-sider-collapsed ~ .ant-layout .ql-toolbar {
+        margin-left: calc(250px + 104px);
+    }
+
+    .editor-container {
+        margin-left: 280px;
     }
     .editor-header {
-        width: 85%;
+        left: 280px;
+    }
+    .documents-container {
+        margin-left: 280px;
+    }
+    .ant-layout-sider-collapsed ~ .ant-layout .editor-container {
+        margin-left: 80px;
+    }
+    .ant-layout-sider-collapsed ~ .ant-layout .editor-header {
+        left: 80px;
+    }
+    .ant-layout-sider-collapsed ~ .ant-layout .documents-container {
+        margin-left: 80px;
+    }
+    .ai-input-container {
+        max-width: calc(100% - 304px);
+        margin-left: 140px;
+    }
+    .ant-layout-sider-collapsed ~ .ant-layout .ai-input-container {
+        max-width: calc(100% - 104px);
+        margin-left: 40px;
+    }
+}
+
+@media (max-width: 1700px) {
+    .ql-toolbar {
+        margin-left: 250px;
+    }
+
+    .ant-layout-sider-collapsed ~ .ant-layout .ql-toolbar {
+        margin-left: calc(100px + 104px);
+    }
+}
+
+@media (max-width: 1600px) {
+    .ql-toolbar {
+        margin-left: 120px;
+    }
+
+    .ant-layout-sider-collapsed ~ .ant-layout .ql-toolbar {
+        margin-left: calc(100px + 104px);
+    }
+}
+
+@media (max-width: 1500px) {
+    .ql-toolbar {
+        margin-left: 250px;
+    }
+
+    .ant-layout-sider-collapsed ~ .ant-layout .ql-toolbar {
+        margin-left: calc(100px + 104px);
     }
 }
 
 @media (max-width: 1200px) {
+    .title-wrapper .document-title-input {
+        max-width: 170px !important;
+    }
+
+    .ql-toolbar {
+        margin-left: 0;
+    }
+
+    .ant-layout-sider-collapsed ~ .ant-layout .ql-toolbar {
+        margin-left: 0;
+        width: 100%;
+    }
+
     .ant-layout-sider {
         width: 80px !important;
         max-width: 80px !important;
@@ -846,11 +986,31 @@ body.dark-theme .custom-delete-modal .ant-btn-primary.ant-btn-dangerous:disabled
         flex: 0 0 80px !important;
     }
 
-    .editor-header .back-button,
-    .editor-header .save-button {
-        width: 100px;
-        font-size: 13px;
-        padding: 0 12px;
+    .editor-container {
+        margin-left: 80px;
+    }
+
+    .editor-header {
+        left: 80px;
+        max-width: calc(100% - 104px);
+    }
+
+    .editor-wrapper {
+        width: 100%;
+    }
+
+    .ai-input-container {
+        width: calc(100% - 104px);
+        max-width: calc(100% - 104px);
+        margin-left: 40px;
+    }
+
+    .ai-preview-container {
+        width: calc(100% - 104px);
+    }
+
+    .documents-container {
+        margin-left: 80px;
     }
 
     .ant-menu-item {
@@ -875,48 +1035,63 @@ body.dark-theme .custom-delete-modal .ant-btn-primary.ant-btn-dangerous:disabled
         padding: 0 16px;
         justify-content: center;
     }
+
+    .close-button {
+        right: 0;
+    }
 }
 
 @media (max-width: 768px) {
     .editor-container {
         padding: 0 16px 16px;
+        margin-left: 80px;
     }
 
-    .editor-wrapper {
-        width: 100%;
-        max-width: calc(100vw - 112px);
+    .editor-header {
+        left: 80px;
+        padding: 8px 16px;
+        max-width: calc(100% - 96px);
     }
 
     .document-title-input {
-        font-size: 20px;
+        font-size: 16px;
+        width: 200px;
+    }
+
+    .ql-toolbar {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .custom-quill {
+        padding: 12px;
     }
 
     .custom-quill .ql-editor {
         padding: 8px;
     }
 
-    .editor-header .back-button,
-    .editor-header .save-button {
-        width: 40px;
-        padding: 0;
+    .close-button {
+        width: 32px;
+        height: 32px;
+        right: 0;
+        top: 4px;
     }
 
-    .editor-header .back-button .ant-btn-icon,
-    .editor-header .save-button .ant-btn-icon {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
+    .ai-input-container {
+        width: calc(100% - 96px);
+        max-width: calc(100% - 96px);
+        margin-left: 40px;
+        padding: 4px;
     }
 
-    .editor-header .back-button .anticon,
-    .editor-header .save-button .anticon {
-        font-size: 20px;
-        display: inline-block;
+    .ai-preview-container {
+        width: calc(100% - 96px);
     }
 
-    .editor-header .back-button > span:not(.ant-btn-icon),
-    .editor-header .save-button > span:not(.ant-btn-icon) {
-        display: none;
+    .documents-container {
+        margin-left: 80px;
+        padding: 16px 0;
     }
 
     .custom-delete-modal .ant-modal-content {
@@ -928,10 +1103,5 @@ body.dark-theme .custom-delete-modal .ant-btn-primary.ant-btn-dangerous:disabled
         width: 100px;
         height: 32px;
         font-size: 13px;
-    }
-
-    .ai-preview-container {
-        width: 100%;
-        bottom: 46px; /* Сохраняем позицию над полем ввода */
     }
 }
