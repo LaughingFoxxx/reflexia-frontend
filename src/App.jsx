@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Layout, Menu, Button, Card, Space, Spin, message, Modal, Upload } from 'antd';
+import {Layout, Menu, Button, Card, Space, Spin, message, Modal, Upload, Dropdown, Menu as AntdMenu} from 'antd';
 import {
     FileTextOutlined,
     UserOutlined,
@@ -12,7 +12,7 @@ import {
     LogoutOutlined,
     CopyOutlined,
     UploadOutlined,
-    ExportOutlined
+    ExportOutlined, DownOutlined
 } from '@ant-design/icons';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
@@ -702,6 +702,84 @@ const App = () => {
         'list', 'bullet',
     ];
 
+    const processingOptions = [
+        {
+            category: "Улучшение текста",
+            options: [
+                { name: "Повысить ясность", emoji: "👀" },
+                { name: "Сделать короче", emoji: "✂️" },
+                { name: "Развить мысль", emoji: "💡" },
+                { name: "Исправить ошибки", emoji: "✏️" },
+                { name: "Формальный тон", emoji: "📋" },
+                { name: "Неформальный тон", emoji: "😊" },
+                { name: "Упростить язык", emoji: "🔤" },
+            ],
+        },
+        {
+            category: "Генерация",
+            options: [
+                { name: "Пересказать", emoji: "🔄" },
+                { name: "Придумать заголовок", emoji: "🏷️" },
+                { name: "Найти задачи", emoji: "✅" },
+                { name: "Продолжить писать", emoji: "➡️" },
+                { name: "Создать список", emoji: "📜" },
+                { name: "Написать введение", emoji: "📖" },
+                { name: "Написать заключение", emoji: "🏁" },
+            ],
+        },
+        {
+            category: "Анализ и формат",
+            options: [
+                { name: "Извлечь ключевые слова", emoji: "🔍" },
+                { name: "Определить тональность", emoji: "🎵" },
+                { name: "Форматировать как Email", emoji: "📧" },
+                { name: "Форматировать как Отчет", emoji: "📄" },
+                { name: "Добавить Эмодзи", emoji: "😍" },
+            ],
+        },
+        {
+            category: "Перевод",
+            options: [
+                { name: "Перевести на Английский", emoji: "🌍" },
+                { name: "Перевести на Немецкий", emoji: "🇩🇪" },
+                { name: "Перевести на Французский", emoji: "🇫🇷" },
+                { name: "Определить язык", emoji: "❓" },
+            ],
+        },
+        {
+            category: "Другое",
+            options: [
+                { name: "Объяснить это", emoji: "ℹ️" },
+                { name: "Превратить в стих", emoji: "📝" },
+                { name: "Сделать твит", emoji: "🐦" },
+                { name: "Связанный факт", emoji: "🔗" },
+            ],
+        },
+    ];
+
+    const aiOptionsMenu = (
+        <AntdMenu>
+            {processingOptions.map(category => (
+                <AntdMenu.SubMenu key={category.category} title={category.category}>
+                    {category.options.map(option => (
+                        <AntdMenu.Item
+                            key={`${category.category}-${option.name}`}
+                            onClick={() => {
+                                const prompt = `${option.name} для выделенного текста`;
+                                setAiPrompt(prompt);
+                                if (selection && selection.text) {
+                                    handleProcessText();
+                                }
+                            }}
+                        >
+                            {option.emoji} {option.name}
+                        </AntdMenu.Item>
+                    ))}
+                </AntdMenu.SubMenu>
+            ))}
+        </AntdMenu>
+    );
+
     const renderEditor = () => (
         <div className="editor-container">
             <div className="editor-header">
@@ -757,6 +835,9 @@ const App = () => {
                     </div>
                 )}
                 <div className="ai-input-container">
+                    <Dropdown overlay={aiOptionsMenu}>
+                        <Button className="ai-options-button" icon={<DownOutlined />}/>
+                    </Dropdown>
                     <input
                         ref={inputRef}
                         type="text"
