@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Card, Button, Typography, Space, message } from 'antd';
-import { LogoutOutlined } from '@ant-design/icons';
+import {Card, Button, Typography, Space, message, Spin} from 'antd';
+import {LoadingOutlined, LogoutOutlined} from '@ant-design/icons';
 import './AccountPage.css';
 import { useNavigate } from "react-router-dom";
 
@@ -92,7 +92,7 @@ const AccountPage = () => {
     };
 
     if (loading) {
-        return <div>Загрузка...</div>;
+        return <div><Spin className="spiner" indicator={<LoadingOutlined style={{ fontSize: 56 }} spin />}></Spin></div>
     }
 
     return (

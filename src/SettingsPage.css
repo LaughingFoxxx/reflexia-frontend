@@ -1,11 +1,16 @@
 /* SettingsPage.css */
 
 .settings-page-container {
-    max-width: 800px; /* Limit width for better readability */
-    margin: 0 auto; /* Center the container */
-    padding: 20px; /* Add some padding */
+    max-width: 100%; /* Limit width for better readability */
     gap: 100px;
+    margin-left: calc(280px + 15%);
+    margin-right: calc(15%);
+    transition: 0.2s ease-out !important;
+}
 
+.ant-layout-sider-collapsed ~ .ant-layout .settings-page-container {
+    margin-left: calc(180px + 15%); /* 80px (сайдбар) + 100px + 15% */
+    margin-right: calc(100px + 15%); /* Равный отступ справа */
 }
 
 /* Style Cards */
@@ -13,115 +18,99 @@
     border-radius: 8px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.09) !important;
     background-color: #ffffff; /* Default light background */
-    /*transition: background-color 0.3s ease, border-color 0.3s ease, transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;*/
     min-height: 250px;
 }
-
-/*.settings-page-container .ant-card:hover {*/
-/*    transform: translateY(-5px); !* Example: Move the card up by 5px on hover *!*/
-/*    box-shadow: 0 5px 12px rgba(0,0,0,0.12)!important; !* Optional: Add a slightly stronger shadow on hover *!*/
-/*}*/
 
 .settings-page-container .ant-card-head {
     background-color: #fafafa; /* Slightly different header bg */
     border-bottom: 1px solid #f0f0f0;
     border-radius: 8px 8px 0 0;
-    /*transition: background-color 0.3s ease, border-color 0.3s ease;*/
 }
 
 .settings-page-container .ant-card-head-title .ant-typography {
     color: #333; /* Default title color */
-    /*transition: color 0.3s ease;*/
 }
 
 /* Style Form Items */
 .settings-page-container .ant-form-item-label > label {
     font-weight: 500;
     color: #555; /* Default label color */
-    /*transition: color 0.3s ease;*/
 }
-
-/*.settings-page-container .ant-select,*/
-/*.settings-page-container .ant-radio-button-wrapper {*/
-/*    transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;*/
-/*}*/
-
 
 /* --- Dark Theme Styles --- */
 
 body.dark-theme {
-    background-color: #1f1f1f !important; /* Dark background for the whole page */
+    background-color: #1e1e1e !important; /* Dark background for the whole page */
     color: #e0e0e0; /* Lighter text color */
 }
 
 body.dark-theme .settings-page-container .ant-card {
-    background: rgba(43, 43, 43, 0.6) !important;
-    backdrop-filter: blur(25px);
-    border-color: #444; /* Darker border */
+    background: #2a2a2a !important;
+    border-color: #3a3a3a; /* Darker border */
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3) !important;
 }
 
 body.dark-theme .settings-page-container .ant-card-head {
-    background: rgba(43, 43, 43, 0.6) !important;
-    backdrop-filter: blur(25px); /* Darker card header background */
-    border-bottom: 1px solid #4a4a4a;
+    background: #252525 !important;
+    border-bottom: 1px solid #3a3a3a;
 }
 
 body.dark-theme .settings-page-container .ant-card-head-title .ant-typography,
 body.dark-theme .settings-page-container .ant-form-item-label > label,
 body.dark-theme .settings-page-container .ant-typography {
-    color: #dcdcdc; /* Lighter text for titles and labels */
+    color: #e0e0e0; /* Lighter text for titles and labels */
 }
 
 body.dark-theme .settings-page-container .ant-select-selector,
-body.dark-theme .settings-page-container .ant-input, /* Include inputs if you add them */
+body.dark-theme .settings-page-container .ant-input,
 body.dark-theme .settings-page-container .ant-radio-button-wrapper {
-    background: rgba(43, 43, 43, 0.78) !important;
-    backdrop-filter: blur(50px);
-    border-color: #555 !important;
-    color: #dcdcdc !important;
+    background: #333333 !important;
+    border-color: #4a4a4a !important;
+    color: #e0e0e0 !important;
 }
+
 body.dark-theme .settings-page-container .ant-radio-button-wrapper:not(:first-child)::before {
-    background-color: #555 !important; /* Separator color */
+    background-color: #4a4a4a !important; /* Separator color */
 }
 
 body.dark-theme .settings-page-container .ant-select-arrow {
-    color: #aaa; /* Arrow color */
+    color: #b0b0b0; /* Arrow color */
 }
 
 body.dark-theme .settings-page-container .ant-select-dropdown,
-body.dark-theme .ant-select-dropdown { /* Make dropdown dark too */
-    background: rgba(43, 43, 43, 0.29) !important;
-    backdrop-filter: blur(25px);
+body.dark-theme .ant-select-dropdown {
+    background: #2a2a2a !important;
+    border-color: #3a3a3a;
 }
 
 body.dark-theme .ant-select-item {
-    color: #dcdcdc;
+    color: #e0e0e0;
 }
 
 body.dark-theme .ant-select-item-option-selected:not(.ant-select-item-option-disabled),
 body.dark-theme .ant-select-item-option-active:not(.ant-select-item-option-disabled) {
-    background-color: #4a4a4a;
-    color: #fff;
+    background-color: #3a4a5d;
+    color: #ffffff;
 }
 
 body.dark-theme .settings-page-container .ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled) {
-    background-color: #1890ff !important; /* Keep primary color for selected radio */
-    border-color: #1890ff !important;
-    color: #fff !important;
+    background-color: #40c4ff !important; /* Use accent blue for selected radio */
+    border-color: #40c4ff !important;
+    color: #ffffff !important;
 }
+
 body.dark-theme .settings-page-container .ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled):hover {
-    background-color: #40a9ff !important;
-    border-color: #40a9ff !important;
+    background-color: #62d1ff !important; /* Lighter blue on hover */
+    border-color: #62d1ff !important;
 }
 
 body.dark-theme .settings-page-container .ant-switch-checked {
-    background-color: #1890ff; /* Primary color for Switch */
+    background-color: #40c4ff; /* Accent blue for Switch */
 }
 
 body.dark-theme .settings-page-container .ant-switch {
-    background-color: rgba(255, 255, 255, 0.3); /* Slightly lighter background for off state */
+    background-color: #4a4a4a; /* Darker background for off state */
 }
-
 
 /* Apply font settings from CSS variables to Quill editor */
 :root {
@@ -132,6 +121,4 @@ body.dark-theme .settings-page-container .ant-switch {
 .custom-quill .ql-editor {
     font-size: var(--editor-font-size);
     font-family: var(--editor-font-family);
-    /* min-height: auto; Removed duplicate */
-    /* padding: 12px; Removed duplicate */
 }

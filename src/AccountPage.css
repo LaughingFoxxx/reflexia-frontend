@@ -1,12 +1,32 @@
 /* AccountPage.css */
 
 .account-page-container {
-    max-width: 800px;
-    margin: 0 auto;
+    max-width: 100%;
     padding: 24px;
     display: flex;
     flex-direction: column;
     align-items: center;
+    margin-left: calc(280px + 15%);
+    margin-right: calc(15%);
+    transition: 0.2s ease-out !important;
+}
+
+.spiner {
+    position: absolute;
+    left: calc(280px + (100% - 280px) / 2); /* Центр между сайдбаром 280px и правым краем */
+    top: 50%;
+    transform: translate(-50%, -50%); /* Центрирование по горизонтали и вертикали */
+    z-index: 1001;
+    transition: left 0.2s ease-out !important; /* Плавный переход для горизонтального смещения */
+}
+
+.ant-layout-sider-collapsed ~ .ant-layout .spiner {
+    left: calc(80px + (100% - 80px) / 2); /* Центр между сайдбаром 80px и правым краем */
+}
+
+.ant-layout-sider-collapsed ~ .ant-layout .account-page-container {
+    margin-left: calc(180px + 15%); /* 80px (сайдбар) + 100px + 15% */
+    margin-right: calc(100px + 15%); /* Равный отступ справа */
 }
 
 .account-page-container .ant-card {

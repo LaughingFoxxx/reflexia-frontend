@@ -479,7 +479,6 @@ const App = () => {
 
     const handleCancelPreview = () => {
         setProcessedText('');
-        setAiPrompt('');
         // Не сбрасываем selection, чтобы сохранить имитацию выделения
     };
 
@@ -666,7 +665,6 @@ const App = () => {
                         doc.id === updatedDoc.id ? updatedDoc : doc
                     )
                 );
-
                 message.success('Документ сохранен');
             } catch (error) {
                 console.error('Failed to save document:', error);
@@ -886,7 +884,7 @@ const App = () => {
                         disabled={!selection || !aiPrompt.trim() || isProcessing}
                         className="ai-submit-button"
                     >
-                        Отправить
+                        Выполнить
                     </Button>
                 </div>
             </div>
@@ -894,7 +892,7 @@ const App = () => {
     );
 
     const renderDocuments = () => {
-        if (isLoadingDocuments) return <div className="centered-spin"><Spin indicator={<LoadingOutlined style={{ fontSize: 36 }} spin />} tip="Loading documents..." /></div>;
+        if (isLoadingDocuments) return <div className="centered-spin"><Spin indicator={<LoadingOutlined style={{ fontSize: 56 }} spin />} tip="Loading documents..." /></div>;
         if (fetchError) return <div className="centered-error">Error loading documents: {fetchError} <Button onClick={() => fetchDocuments()}>Retry</Button></div>;
 
         return (
