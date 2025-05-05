@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import {Layout, Menu, Button, Card, Space, Spin, message, Modal, Upload, Dropdown, Menu as AntdMenu} from 'antd';
+import { Layout, Menu, Button, Card, Space, Spin, message, Modal, Upload, Dropdown, Menu as AntdMenu } from 'antd';
 import {
     FileTextOutlined,
     UserOutlined,
@@ -11,16 +11,23 @@ import {
     LogoutOutlined,
     CopyOutlined,
     UploadOutlined,
-    ExportOutlined, DownOutlined, EllipsisOutlined
+    ExportOutlined,
+    DownOutlined,
+    EllipsisOutlined,
+    UpOutlined,
+    DownOutlined as MinimizeOutlined,
+    LeftOutlined,
+    RightOutlined
 } from '@ant-design/icons';
 import ReactQuill from 'react-quill';
+import ReactMarkdown from 'react-markdown';
 import 'react-quill/dist/quill.snow.css';
 import './App.css';
 import SettingsPage from './SettingsPage.jsx';
 import AccountPage from './AccountPage.jsx';
 import { useNavigate } from 'react-router-dom';
-
-const { Sider, Content } = Layout;
+import {Content} from "antd/es/layout/layout.js";
+import Sider from "antd/es/layout/Sider.js";
 
 // Вспомогательная функция для удаления HTML-тегов
 const stripHtml = (html) => {
@@ -34,7 +41,8 @@ const App = () => {
     const [editorContent, setEditorContent] = useState('');
     const [originalContent, setOriginalContent] = useState('');
     const [selection, setSelection] = useState(null);
-    const [processedText, setProcessedText] = useState('');
+    const [processedResponses, setProcessedResponses] = useState([]); // Array of { text: string }
+    const [currentResponseIndex, setCurrentResponseIndex] = useState(-1);
     const [isProcessing, setIsProcessing] = useState(false);
     const [aiPrompt, setAiPrompt] = useState('');
     const [isMobile, setIsMobile] = useState(window.innerWidth <= 1100);
@@ -51,6 +59,7 @@ const App = () => {
     const [documentToDelete, setDocumentToDelete] = useState(null);
     const navigate = useNavigate();
     const [collapsed, setCollapsed] = useState(false);
+    const [isPreviewMinimized, setIsPreviewMinimized] = useState(false);
 
     // Отслеживание изменения размера экрана
     useEffect(() => {
@@ -78,34 +87,42 @@ const App = () => {
                 previewRef.current &&
                 submitButtonRef.current &&
                 closeButtonRef.current &&
+                toggleButtonRef.current &&
+                !quillRef.current.getEditor().root.contains(event.target) &&
                 !inputRef.current.contains(event.target) &&
                 !submitButtonRef.current.contains(event.target) &&
-                !closeButtonRef.current.contains(event.target)
+                !closeButtonRef.current.contains(event.target) &&
+                !toggleButtonRef.current.contains(event.target) // Исключаем кнопку сворачивания
             ) {
-                clearBackgroundFormatting();
+                // Очищаем выделение в редакторе, но сохраняем processedResponses
+                if (selection) {
+                    clearBackgroundFormatting(false);
+                }
             }
         };
 
         document.addEventListener('click', handleGlobalClick);
-        return () => document.addEventListener('click', handleGlobalClick);
+        return () => document.removeEventListener('click', handleGlobalClick);
     }, [selection]);
 
     // Функция для очистки фонового форматирования
-    const clearBackgroundFormatting = () => {
+    const clearBackgroundFormatting = (clearPreview = true) => {
         if (quillRef.current) {
             const quill = quillRef.current.getEditor();
             const length = quill.getLength();
-            // Очищаем только фоновое форматирование, сохраняя остальные стили
             quill.formatText(0, length, { background: false }, 'user');
-            // Получаем очищенное содержимое как HTML
             const cleanHtml = quill.root.innerHTML;
             setEditorContent(cleanHtml);
             setSelection(null);
             setAiPrompt('');
-            setProcessedText('');
+            if (clearPreview) {
+                setProcessedResponses([]);
+                setCurrentResponseIndex(-1);
+                setIsPreviewMinimized(false);
+            }
             return cleanHtml;
         }
-        return editorContent; // Возвращаем текущее содержимое, если quill недоступен
+        return editorContent;
     };
 
     // Функция выхода из аккаунта
@@ -313,7 +330,7 @@ const App = () => {
                 handleDocumentResponse(data);
             }
 
-            return false; // Prevent Upload component from auto-uploading again
+            return false;
         } catch (error) {
             console.error('Failed to upload file:', error);
             message.error(`Ошибка при загрузке файла: ${error.message}`);
@@ -356,7 +373,6 @@ const App = () => {
             const quill = quillRef.current.getEditor();
             const range = quill.getSelection();
             if (range && range.length > 0) {
-                // Если есть предыдущее выделение, убираем его фон
                 if (selection) {
                     quill.formatText(selection.range.index, selection.range.length, {
                         background: false,
@@ -364,8 +380,11 @@ const App = () => {
                 }
                 const text = quill.getText(range.index, range.length);
                 setSelection({ text, range });
+                quill.formatText(range.index, range.length, {
+                    background: document.body.classList.contains('dark-theme') ? '#508ec1' : '#fff9a8',
+                });
             } else if (selection && document.activeElement !== inputRef.current) {
-                clearBackgroundFormatting();
+                clearBackgroundFormatting(false);
             }
         }
     };
@@ -373,18 +392,16 @@ const App = () => {
     const handleInputClick = () => {
         if (quillRef.current && selection) {
             const quill = quillRef.current.getEditor();
-            // Применяем имитацию выделения через форматирование фона
             quill.formatText(selection.range.index, selection.range.length, {
                 background: document.body.classList.contains('dark-theme') ? '#508ec1' : '#fff9a8',
             });
-            // Убедимся, что фокус остается на input
             inputRef.current.focus();
         }
     };
 
     const handleKeyDown = (event) => {
         if (quillRef.current && selection && (event.ctrlKey || event.metaKey) && event.key === 'z') {
-            clearBackgroundFormatting();
+            clearBackgroundFormatting(false);
         }
     };
 
@@ -395,7 +412,9 @@ const App = () => {
         }
 
         setIsProcessing(true);
-        setProcessedText('');
+        if (isPreviewMinimized) {
+            handleTogglePreview()
+        }
 
         try {
             const payload = {
@@ -412,6 +431,7 @@ const App = () => {
                 credentials: 'include',
             });
 
+            let resultText;
             if (response.status === 401) {
                 const refreshResponse = await fetch('http://localhost:8082/api/auth/refresh', {
                     method: 'POST',
@@ -436,50 +456,73 @@ const App = () => {
                 }
 
                 const retryData = await retryResponse.json();
-                setProcessedText(retryData.result || 'Ошибка: пустой результат');
+                resultText = retryData.result || 'Ошибка: пустой результат';
             } else if (!response.ok) {
                 throw new Error(`HTTP error ${response.status}`);
             } else {
                 const data = await response.json();
-                setProcessedText(data.result || 'Ошибка: пустой результат');
+                resultText = data.result || 'Ошибка: пустой результат';
             }
+
+            // Append new response and set index to the latest
+            setProcessedResponses(prev => [...prev, { text: resultText }]);
+            setCurrentResponseIndex(processedResponses.length);
         } catch (error) {
             console.error('Failed to process text:', error);
-            setProcessedText(`Ошибка обработки: ${error.message}`);
+            setProcessedResponses(prev => [...prev, { text: `Ошибка обработки: ${error.message}` }]);
+            setCurrentResponseIndex(processedResponses.length);
         } finally {
             setIsProcessing(false);
         }
     };
 
+    const handleNavigateResponse = (direction) => {
+        setCurrentResponseIndex(prev => {
+            const newIndex = direction === 'next' ? prev + 1 : prev - 1;
+            return Math.max(0, Math.min(newIndex, processedResponses.length - 1));
+        });
+    };
+
     const handleReplaceText = () => {
-        if (quillRef.current && selection) {
+        if (quillRef.current && selection && processedResponses[currentResponseIndex]) {
             const quill = quillRef.current.getEditor();
-            // Удаляем имитацию выделения перед заменой
             quill.formatText(selection.range.index, selection.range.length, {
                 background: false,
             });
             quill.deleteText(selection.range.index, selection.range.length);
-            quill.insertText(selection.range.index, processedText);
-            setProcessedText('');
+            quill.insertText(selection.range.index, processedResponses[currentResponseIndex].text);
+            setProcessedResponses([]);
+            setCurrentResponseIndex(-1);
             setAiPrompt('');
             setSelection(null);
+            setIsPreviewMinimized(false);
         }
     };
 
     const handleCopyText = () => {
-        navigator.clipboard.writeText(processedText)
-            .then(() => {
-                message.success('Текст скопирован в буфер обмена');
-            })
-            .catch((error) => {
-                console.error('Failed to copy text:', error);
-                message.error('Ошибка при копировании текста');
-            });
+        if (processedResponses[currentResponseIndex]) {
+            navigator.clipboard.writeText(processedResponses[currentResponseIndex].text)
+                .then(() => {
+                    message.success('Текст скопирован в буфер обмена');
+                })
+                .catch((error) => {
+                    console.error('Failed to copy text:', error);
+                    message.error('Ошибка при копировании текста');
+                });
+        }
     };
 
     const handleCancelPreview = () => {
-        setProcessedText('');
-        // Не сбрасываем selection, чтобы сохранить имитацию выделения
+        setProcessedResponses([]);
+        setCurrentResponseIndex(-1);
+        setIsPreviewMinimized(false);
+        if (selection) {
+            clearBackgroundFormatting(true);
+        }
+    };
+
+    const handleTogglePreview = () => {
+        setIsPreviewMinimized(prev => !prev);
     };
 
     const handleCreateDocument = async () => {
@@ -576,18 +619,15 @@ const App = () => {
     };
 
     const handleClose = async () => {
-        // Очищаем форматирование и обновляем editorContent
         let cleanContent = editorContent;
         if (quillRef.current) {
-            cleanContent = clearBackgroundFormatting();
+            cleanContent = clearBackgroundFormatting(true);
         }
 
-        // Проверяем, нужно ли сохранять документ
         if (cleanContent !== originalContent || currentDoc?.title !== currentDoc?.title) {
             await handleSave();
         }
 
-        // Сбрасываем текущий документ и редактор
         setCurrentDoc(null);
         setEditorContent('');
         setOriginalContent('');
@@ -596,10 +636,9 @@ const App = () => {
     const handleSave = async () => {
         if (!currentDoc) return;
 
-        // Очищаем форматирование и обновляем editorContent
         let cleanContent = editorContent;
         if (quillRef.current) {
-            cleanContent = clearBackgroundFormatting();
+            cleanContent = clearBackgroundFormatting(true);
         }
 
         const payload = {
@@ -678,7 +717,7 @@ const App = () => {
     };
 
     const modules = {
-        toolbar: '#toolbar' // Reference to external toolbar container
+        toolbar: '#toolbar'
     };
 
     const formats = [
@@ -833,28 +872,56 @@ const App = () => {
                     modules={modules}
                     formats={formats}
                 />
-                {(isProcessing || processedText) && (
-                    <div className="ai-preview-container" ref={previewRef}>
-                        {isProcessing ? (
-                            <div className="spinner-container">
-                                <Spin indicator={<LoadingOutlined spin />} size="large" />
-                            </div>
-                        ) : (
-                            <div className="preview-content">
-                                <div
-                                    className="preview-text"
-                                    dangerouslySetInnerHTML={{
-                                        __html: processedText
-                                            .replace(/\n/g, '<br/>')
-                                            .replace(/\r\n/g, '<br/>')
-                                    }}
+                {(isProcessing || processedResponses.length > 0) && (
+                    <div className={`ai-preview-container ${isPreviewMinimized ? 'minimized' : ''}`} ref={previewRef}>
+                        <div className="preview-header">
+                            <div className="response-navigation">
+                                <Button
+                                    icon={<LeftOutlined />}
+                                    onClick={() => handleNavigateResponse('prev')}
+                                    type="text"
+                                    className="nav-button"
+                                    disabled={currentResponseIndex <= 0}
                                 />
-                                <div className="preview-buttons">
-                                    <Button onClick={handleCancelPreview}>Назад</Button>
-                                    <Button onClick={handleCopyText} icon={<CopyOutlined />}>Скопировать</Button>
-                                    <Button type="primary" onClick={handleReplaceText}>Заменить</Button>
-                                </div>
+                                <span className="response-info">
+                                    {currentResponseIndex + 1} из {processedResponses.length}
+                                </span>
+                                <Button
+                                    icon={<RightOutlined />}
+                                    onClick={() => handleNavigateResponse('next')}
+                                    type="text"
+                                    className="nav-button"
+                                    disabled={currentResponseIndex >= processedResponses.length - 1}
+                                />
                             </div>
+                            <Button
+                                icon={isPreviewMinimized ? <UpOutlined /> : <MinimizeOutlined />}
+                                onClick={handleTogglePreview}
+                                type="text"
+                                className="toggle-preview-button"
+                            />
+                        </div>
+                        {!isPreviewMinimized && (
+                            <>
+                                {isProcessing ? (
+                                    <div className="spinner-container">
+                                        <Spin indicator={<LoadingOutlined spin />} size="large" />
+                                    </div>
+                                ) : (
+                                    <div className="preview-content">
+                                        <div className="preview-text">
+                                            {processedResponses[currentResponseIndex] && (
+                                                <ReactMarkdown>{processedResponses[currentResponseIndex].text}</ReactMarkdown>
+                                            )}
+                                        </div>
+                                        <div className="preview-buttons">
+                                            <Button onClick={handleCancelPreview}>Отменить</Button>
+                                            <Button onClick={handleCopyText} icon={<CopyOutlined />}>Скопировать</Button>
+                                            <Button type="primary" onClick={handleReplaceText}>Заменить</Button>
+                                        </div>
+                                    </div>
+                                )}
+                            </>
                         )}
                     </div>
                 )}
